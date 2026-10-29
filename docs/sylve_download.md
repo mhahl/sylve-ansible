@@ -29,6 +29,7 @@ Start URL/magnet downloads, upload local ISO/image files to downloader storage, 
 | `dest` | `path` | no | — | — | Local destination file path when C(state=fetched). |
 | `params` | `dict` | no | — | — | Optional query parameters (e.g. signed capability parameters when C(state=fetched)). |
 | `data` | `dict` | no | — | — | Additional raw request fields. |
+| `timeout` | `float` | no | `600.0` | — | HTTP request timeout in seconds. Raised for this module because large ISO uploads and downloads take a while. |
 
 All modules also accept the shared [sylve connection options](index.md#authentication) (`config_path`, `context`, `auth`, `server`, `token`, `username`, `password`, `auth_type`, `node`, `validate_certs`, `ca_cert`, `timeout`, `wait`, `poll_interval`).
 

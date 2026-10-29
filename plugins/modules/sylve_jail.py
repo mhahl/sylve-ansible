@@ -153,6 +153,11 @@ options:
     description: Additional raw fields merged into the jail creation payload.
     type: dict
     required: false
+  timeout:
+    description: HTTP request and lifecycle-task polling timeout in seconds. Raised for this module because creates and migrations can run for several minutes.
+    type: float
+    default: 600.0
+    required: false
 version_added: 0.3.1
 author:
 - Sylve Contributors (@mhahl)
@@ -226,6 +231,7 @@ from ansible_collections.sylve.cloud.plugins.module_utils.sylve import (
 
 
 class SylveJailModule(SylveModule):
+    default_timeout = 600.0
     argument_spec = {
         "state": {
             "type": "str",

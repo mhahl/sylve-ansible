@@ -28,6 +28,7 @@ Create, update, delete, run, or fail over cluster HA replication policies, and q
 | `confirm_data_loss` | `bool` | no | `false` | — | Acknowledge potential data loss for forced failover. |
 | `enabled` | `bool` | no | `true` | — | Enable the policy. |
 | `data` | `dict` | no | — | — | Additional raw request fields. |
+| `timeout` | `float` | no | `1800.0` | — | HTTP request and replication-event polling timeout in seconds. Raised for this module because replication runs can take tens of minutes. |
 
 All modules also accept the shared [sylve connection options](index.md#authentication) (`config_path`, `context`, `auth`, `server`, `token`, `username`, `password`, `auth_type`, `node`, `validate_certs`, `ca_cert`, `timeout`, `wait`, `poll_interval`).
 

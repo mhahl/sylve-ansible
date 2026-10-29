@@ -41,7 +41,7 @@ Supports day-2 updates to name, description, CPU, RAM, VNC, PCI passthrough, and
 | `vnc_enabled` | `bool` | no | — | — | Enable VNC console. |
 | `vnc_bind` | `str` | no | — | — | VNC bind address. |
 | `vnc_port` | `int` | no | — | — | VNC port. Auto-selected as the first free port in 5900-5999 on the target node when omitted. |
-| `vnc_password` | `str` | no | — | — | VNC password. A random 12-character password is generated when VNC is enabled and this is omitted; it is returned as C(vnc_password) in the result. |
+| `vnc_password` | `str` | no | — | — | VNC password. A random 12-character password is generated on create when VNC is enabled and this is omitted; it is returned as C(vnc_password) in the result. On update the key is omitted from the request when neither the task nor the live config provides one (never sent empty). |
 | `vnc_resolution` | `str` | no | — | — | VNC resolution (e.g. C(1024x768)). |
 | `vnc_wait` | `bool` | no | — | — | Wait for VNC connection before booting. |
 | `pci_devices` | `list` | no | — | — | List of PCI passthrough device IDs. |
@@ -68,6 +68,7 @@ Supports day-2 updates to name, description, CPU, RAM, VNC, PCI passthrough, and
 | `delete_macs` | `bool` | no | `true` | — | Delete associated MAC objects when C(state=absent). |
 | `force` | `bool` | no | `false` | — | Force deletion when C(state=absent). |
 | `extra_params` | `dict` | no | — | — | Additional raw request fields merged into the create payload. |
+| `timeout` | `float` | no | `600.0` | — | HTTP request and lifecycle-task polling timeout in seconds. Raised for this module because creates and migrations can run for several minutes. |
 
 All modules also accept the shared [sylve connection options](index.md#authentication) (`config_path`, `context`, `auth`, `server`, `token`, `username`, `password`, `auth_type`, `node`, `validate_certs`, `ca_cert`, `timeout`, `wait`, `poll_interval`).
 

@@ -1128,24 +1128,30 @@ def create_client_from_params(params: dict[str, Any]) -> tuple[str, SylveClient]
 
 
 class SylveModule:
-    """Base class for Sylve Ansible modules, modeled after OpenStackModule in openstack.cloud."""
+    """Base class for Sylve Ansible modules, providing shared authentication, connection handling, and common helpers."""
 
     argument_spec: dict[str, Any] = {}
     module_kwargs: dict[str, Any] = {}
     requires_auth: bool = True
+    # Default HTTP/task timeout in seconds. Modules wrapping long operations
+    # (backups, replication, drains, guest lifecycle) raise this to match the
+    # waiter they use; document any override in the module's own DOCUMENTATION.
+    default_timeout: float = 60.0
 
     def __init__(self) -> None:
         merged_kwargs: dict[str, Any] = {"supports_check_mode": True}
         merged_kwargs.update(self.module_kwargs)
+        spec = sylve_argument_spec(**self.argument_spec)
+        spec["timeout"]["default"] = self.default_timeout
         self.ansible = AnsibleModule(
-            sylve_argument_spec(**self.argument_spec),
+            spec,
             **merged_kwargs,
         )
         self.params: dict[str, Any] = self.ansible.params
         self.check_mode: bool = self.ansible.check_mode
         self.node: str | None = self.params.get("node")
         self.wait: bool = bool(self.params.get("wait", True))
-        self.timeout: float = float(self.params.get("timeout") or 60.0)
+        self.timeout: float = float(self.params.get("timeout") or self.default_timeout)
         self.poll_interval: float = float(self.params.get("poll_interval") or 1.5)
         self.context_name: str = ""
         self._client: SylveClient | None = None

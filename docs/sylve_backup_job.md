@@ -29,6 +29,7 @@ Create, update, delete, run, or restore from cluster backup jobs, and query back
 | `snapshot` | `str` | no | — | — | Snapshot name to restore when C(state=restored). |
 | `encryption_key` | `str` | no | — | — | Decryption key when C(state=restored). |
 | `data` | `dict` | no | — | — | Additional raw request fields. |
+| `timeout` | `float` | no | `3600.0` | — | HTTP request and backup-event polling timeout in seconds. Raised for this module because backup runs can take hours. |
 
 All modules also accept the shared [sylve connection options](index.md#authentication) (`config_path`, `context`, `auth`, `server`, `token`, `username`, `password`, `auth_type`, `node`, `validate_certs`, `ca_cert`, `timeout`, `wait`, `poll_interval`).
 

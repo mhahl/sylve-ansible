@@ -142,8 +142,10 @@ options:
     type: int
     required: false
   vnc_password:
-    description: VNC password. A random 12-character password is generated when VNC
-      is enabled and this is omitted; it is returned as C(vnc_password) in the result.
+    description: VNC password. A random 12-character password is generated on create
+      when VNC is enabled and this is omitted; it is returned as C(vnc_password) in
+      the result. On update the key is omitted from the request when neither the task
+      nor the live config provides one (never sent empty).
     type: str
     required: false
   vnc_resolution:
@@ -255,6 +257,11 @@ options:
   extra_params:
     description: Additional raw request fields merged into the create payload.
     type: dict
+    required: false
+  timeout:
+    description: HTTP request and lifecycle-task polling timeout in seconds. Raised for this module because creates and migrations can run for several minutes.
+    type: float
+    default: 600.0
     required: false
 version_added: 0.3.1
 author:
@@ -371,6 +378,7 @@ def _next_free_vnc_port(client: SylveClient, host: str | None) -> int:
 
 
 class SylveVMModule(SylveModule):
+    default_timeout = 600.0
     argument_spec = {
         "state": {
             "type": "str",
@@ -602,26 +610,33 @@ class SylveVMModule(SylveModule):
         if self.subset_differs(vnc_desired, current) or p.get("vnc_password") is not None:
             changed = True
             if not self.check_mode:
+                vnc_body: dict = {
+                    "vncEnabled": (
+                        p["vnc_enabled"]
+                        if p.get("vnc_enabled") is not None
+                        else bool(current.get("vncEnabled", True))
+                    ),
+                    "vncBind": p.get("vnc_bind") or current.get("vncBind") or "127.0.0.1",
+                    "vncPort": p.get("vnc_port")
+                    or current.get("vncPort")
+                    or _next_free_vnc_port(self.client, host),
+                    "vncResolution": p.get("vnc_resolution")
+                    or current.get("vncResolution")
+                    or "1024x768",
+                    "vncWait": (
+                        p["vnc_wait"]
+                        if p.get("vnc_wait") is not None
+                        else bool(current.get("vncWait", False))
+                    ),
+                }
+                # Never push an empty password: omit the key when neither the
+                # task nor the live config provides one.
+                vnc_password = p.get("vnc_password") or current.get("vncPassword")
+                if vnc_password:
+                    vnc_body["vncPassword"] = vnc_password
                 self.client.put(
                     f"/vm/{rid}/hardware/vnc",
-                    json_body={
-                        "vncEnabled": (
-                            p["vnc_enabled"]
-                            if p.get("vnc_enabled") is not None
-                            else bool(current.get("vncEnabled", True))
-                        ),
-                        "vncBind": p.get("vnc_bind") or current.get("vncBind") or "127.0.0.1",
-                        "vncPort": p.get("vnc_port") or current.get("vncPort") or 5900,
-                        "vncPassword": p.get("vnc_password") or current.get("vncPassword") or "",
-                        "vncResolution": p.get("vnc_resolution")
-                        or current.get("vncResolution")
-                        or "1024x768",
-                        "vncWait": (
-                            p["vnc_wait"]
-                            if p.get("vnc_wait") is not None
-                            else bool(current.get("vncWait", False))
-                        ),
-                    },
+                    json_body=vnc_body,
                     node=host,
                 )
 

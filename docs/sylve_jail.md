@@ -48,6 +48,7 @@ Supports day-2 updates to name, description, CPU, RAM, resource limits, network 
 | `delete_rootfs` | `bool` | no | `true` | — | Delete jail root ZFS dataset when C(state=absent). |
 | `delete_macs` | `bool` | no | `true` | — | Delete unused MAC objects when C(state=absent). |
 | `extra_params` | `dict` | no | — | — | Additional raw fields merged into the jail creation payload. |
+| `timeout` | `float` | no | `600.0` | — | HTTP request and lifecycle-task polling timeout in seconds. Raised for this module because creates and migrations can run for several minutes. |
 
 All modules also accept the shared [sylve connection options](index.md#authentication) (`config_path`, `context`, `auth`, `server`, `token`, `username`, `password`, `auth_type`, `node`, `validate_certs`, `ca_cert`, `timeout`, `wait`, `poll_interval`).
 

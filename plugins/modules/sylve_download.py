@@ -94,6 +94,11 @@ options:
     description: Additional raw request fields.
     type: dict
     required: false
+  timeout:
+    description: HTTP request timeout in seconds. Raised for this module because large ISO uploads and downloads take a while.
+    type: float
+    default: 600.0
+    required: false
 version_added: 0.3.1
 author:
 - Sylve Contributors (@mhahl)
@@ -156,6 +161,7 @@ from ansible_collections.sylve.cloud.plugins.module_utils.sylve import SylveModu
 
 
 class SylveDownloadModule(SylveModule):
+    default_timeout = 600.0
     argument_spec = {
         "state": {
             "type": "str",

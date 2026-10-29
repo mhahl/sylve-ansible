@@ -20,6 +20,7 @@ Query active or recent lifecycle tasks, wait for a task by ID, validate guest mi
 | `guest_id` | `int` | no | — | — | Guest RID or CTID. |
 | `target_node` | `str` | no | — | — | Target node hostname or UUID for C(action=validate_migration). |
 | `limit` | `int` | no | `25` | — | Maximum recent tasks to return. |
+| `timeout` | `float` | no | `600.0` | — | HTTP request and task polling timeout in seconds. Raised for this module because lifecycle waits can run for several minutes. |
 
 All modules also accept the shared [sylve connection options](index.md#authentication) (`config_path`, `context`, `auth`, `server`, `token`, `username`, `password`, `auth_type`, `node`, `validate_certs`, `ca_cert`, `timeout`, `wait`, `poll_interval`).
 

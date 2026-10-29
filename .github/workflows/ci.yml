@@ -71,3 +71,22 @@ jobs:
           python-version: "3.12"
       - run: pip install ansible-core
       - run: ansible-galaxy collection build
+
+  integration-syntax:
+    name: Integration playbook syntax check
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          path: ansible_collections/sylve/cloud
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+      - run: pip install ansible-core
+      - name: Syntax-check integration playbooks
+        run: |
+          cd ansible_collections/sylve/cloud
+          export ANSIBLE_COLLECTIONS_PATH="${{ github.workspace }}"
+          for play in tests/integration/*.yml; do
+            ansible-playbook --syntax-check "$play"
+          done

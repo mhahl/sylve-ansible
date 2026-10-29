@@ -59,6 +59,11 @@ options:
     description: Host note content.
     type: str
     required: false
+  timeout:
+    description: HTTP request and task polling timeout in seconds. Raised for this module because drain operations chain failovers and migrations.
+    type: float
+    default: 1800.0
+    required: false
 version_added: 0.3.1
 author:
 - Sylve Contributors (@mhahl)
@@ -130,6 +135,7 @@ from ansible_collections.sylve.cloud.plugins.module_utils.sylve import (
 
 
 class SylveNodeModule(SylveModule):
+    default_timeout = 1800.0
     argument_spec = {
         "action": {
             "type": "str",

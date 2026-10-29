@@ -2,7 +2,7 @@
 
 Ansible collection for managing [Sylve](https://github.com/AlchemillaHQ/Sylve) FreeBSD hypervisor clusters, Bhyve virtual machines, FreeBSD Jails, ZFS storage, networking, replication, and backups.
 
-Modeled after `openstack.cloud`, `sylve.cloud` shares `~/.config/sylve/config.yaml` contexts and `SYLVE_*` environment variables with `sylve-cli`.
+`sylve.cloud` shares `~/.config/sylve/config.yaml` contexts and `SYLVE_*` environment variables with `sylve-cli`.
 
 ## Installation
 
@@ -89,6 +89,7 @@ yamllint .                      # YAML style (config: .yamllint)
 antsibull-changelog lint        # changelog fragments
 ansible-test sanity --test validate-modules --test pep8 --test yamllint --test import --python 3.12
 ansible-galaxy collection build # build artifact
+python3 scripts/generate_docs.py # regenerate docs/ from module documentation
 ```
 
 `validate-modules` runs against the collection layout (`.../ansible_collections/sylve/cloud`); the BSD-only license headers are covered by `tests/sanity/ignore-*.txt`.

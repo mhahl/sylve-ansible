@@ -48,6 +48,12 @@ options:
     type: int
     default: 25
     required: false
+  timeout:
+    description: HTTP request and task polling timeout in seconds. Raised for this
+      module because lifecycle waits can run for several minutes.
+    type: float
+    default: 600.0
+    required: false
 version_added: 0.3.1
 author:
 - Sylve Contributors (@mhahl)
@@ -110,6 +116,8 @@ from ansible_collections.sylve.cloud.plugins.module_utils.sylve import (
 
 
 class SylveTaskModule(SylveModule):
+    default_timeout = 600.0
+
     argument_spec = {
         "action": {
             "type": "str",

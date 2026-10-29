@@ -19,7 +19,7 @@ options:
     aliases: [cloud]
   auth:
     description:
-      - Optional dictionary containing authentication and connection overrides (similar to C(openstack.cloud)).
+      - Optional dictionary containing authentication and connection overrides.
     type: dict
     suboptions:
       server:

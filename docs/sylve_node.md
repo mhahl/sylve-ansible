@@ -23,6 +23,7 @@ Drain a cluster node for maintenance (failing over HA policies and migrating/sto
 | `ids` | `list` | no | — | — | Host note IDs for bulk deletion (C(DELETE /info/notes)). |
 | `title` | `str` | no | — | — | Host note title. |
 | `content` | `str` | no | — | — | Host note content. |
+| `timeout` | `float` | no | `1800.0` | — | HTTP request and task polling timeout in seconds. Raised for this module because drain operations chain failovers and migrations. |
 
 All modules also accept the shared [sylve connection options](index.md#authentication) (`config_path`, `context`, `auth`, `server`, `token`, `username`, `password`, `auth_type`, `node`, `validate_certs`, `ca_cert`, `timeout`, `wait`, `poll_interval`).
 
