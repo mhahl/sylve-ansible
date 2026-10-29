@@ -1,72 +1,128 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# BSD-2-Clause
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import annotations
 
-DOCUMENTATION = r"""
----
+DOCUMENTATION = r"""---
 module: sylve_switch
 short_description: Manage Sylve standard and manual network switches
 description:
-  - Create, update, delete, or synchronize standard and manual FreeBSD bridge network switches on Sylve.
+- Create, update, delete, or synchronize standard and manual FreeBSD bridge network switches on Sylve.
 extends_documentation_fragment:
-  - sylve.cloud.sylve
+- sylve.cloud.sylve
 options:
   state:
     description: Desired switch state or action.
     type: str
-    choices: [present, absent, synced]
+    choices:
+    - present
+    - absent
+    - synced
     default: present
+    required: false
   switch_id:
     description: Numeric switch ID.
     type: int
-    aliases: [id]
+    aliases:
+    - id
+    required: false
   name:
     description: Switch name.
     type: str
+    required: false
   type:
     description: Switch type (C(standard) or C(manual)).
     type: str
-    choices: [standard, manual]
+    choices:
+    - standard
+    - manual
     default: standard
+    required: false
   bridge:
     description: Existing host bridge interface name when C(type=manual) (e.g. C(bridge0)).
     type: str
+    required: false
+  bridge_mac:
+    description: Bridge MAC source (sent as C(bridgeMac)). Required by the API when creating a standard switch.
+    type: dict
+    required: false
+    suboptions:
+      mode:
+        description: MAC source mode (e.g. C(port), as used by switches created in the web UI).
+        type: str
+      port:
+        description: Member port name to derive the bridge MAC from (when C(mode=port)).
+        type: str
+      mac_object_id:
+        description: MAC network object ID (for object-backed modes).
+        type: int
   ports:
     description: List of member interface names when C(type=standard).
     type: list
     elements: str
+    required: false
   private:
     description: Host-only private switch flag.
     type: bool
     default: false
+    required: false
   dhcp:
     description: Enable DHCP client on the switch bridge.
     type: bool
     default: false
+    required: false
   mtu:
     description: Switch MTU.
     type: int
     default: 1500
+    required: false
   vlan:
     description: VLAN tag.
     type: int
     default: 0
+    required: false
   vlan_filtering:
     description: Enable FreeBSD bridge VLAN filtering.
     type: bool
     default: false
+    required: false
   default_access_vlan:
     description: Default access VLAN when VLAN filtering is enabled.
     type: int
     default: 0
+    required: false
   address:
     description: Optional IPv4 CIDR address or network object.
     type: str
+    required: false
   data:
     description: Additional raw fields merged into the request body.
     type: dict
+    required: false
+version_added: 1.0.0
+author:
+- Sylve Contributors (@mhahl)
+requirements:
+- python >= 3.10
+- PyYAML
+attributes:
+  check_mode:
+    description: Can run in check mode and return changed status prediction without modifying the target.
+    support: full
+  diff_mode:
+    description: Will return details on what has changed when in diff mode. This module does not report diffs.
+    support: none
+notes:
+- Supports C(check_mode).
+- 'C(state=present) is idempotent: the module only issues write requests when the desired state differs from the live object.'
+- Shares C(~/.config/sylve/config.yaml) contexts and C(SYLVE_*) environment variables with the C(sylve) CLI (see M(sylve.cloud.sylve_api)).
+seealso:
+- module: sylve.cloud.sylve_api
+  description: Execute any Sylve REST API endpoint directly.
+- name: sylve.cloud collection README
+  link: https://github.com/mhahl/sylve-ansible
+  description: Authentication, configuration, and inventory plugin usage.
 """
 
 EXAMPLES = r"""
@@ -77,13 +133,32 @@ EXAMPLES = r"""
     ports: [em0]
     mtu: 1500
     state: present
+
+- name: Manage Sylve standard and manual network switches on a specific node using a named context
+  sylve.cloud.sylve_switch:
+    context: prod
+    node: node1.lan
+    name: lan0
+    type: standard
+    ports: [em0]
+    state: present
+  register: result
+
+- name: Show result
+  ansible.builtin.debug:
+    var: result
 """
 
-RETURN = r"""
+RETURN = r"""changed:
+  description: Whether the module made changes on the Sylve cluster.
+  returned: always
+  type: bool
+  sample: true
 switch:
   description: Switch details.
   returned: always
   type: dict
+  sample: '{"id": 1, "name": "lan0", "type": "standard"}'
 """
 
 from ansible_collections.sylve.cloud.plugins.module_utils.sylve import SylveModule
@@ -96,6 +171,14 @@ class SylveSwitchModule(SylveModule):
         "name": {"type": "str"},
         "type": {"type": "str", "choices": ["standard", "manual"], "default": "standard"},
         "bridge": {"type": "str"},
+        "bridge_mac": {
+            "type": "dict",
+            "options": {
+                "mode": {"type": "str"},
+                "port": {"type": "str"},
+                "mac_object_id": {"type": "int"},
+            },
+        },
         "ports": {"type": "list", "elements": "str"},
         "private": {"type": "bool", "default": False},
         "dhcp": {"type": "bool", "default": False},
@@ -170,6 +253,13 @@ class SylveSwitchModule(SylveModule):
         }
         if self.params.get("address") is not None:
             body["address"] = self.params["address"]
+        if self.params.get("bridge_mac") is not None:
+            bm = self.params["bridge_mac"] or {}
+            body["bridgeMac"] = {
+                "mode": bm.get("mode"),
+                "port": bm.get("port"),
+                "macObjectId": bm.get("mac_object_id"),
+            }
         if self.params.get("data"):
             body.update(self.params["data"])
 
@@ -187,6 +277,11 @@ class SylveSwitchModule(SylveModule):
                 vlan=int(existing.get("vlan") or 0),
                 vlanFiltering=bool(existing.get("vlanFiltering", False)),
                 defaultAccessVlan=int(existing.get("defaultAccessVlan") or 0),
+                bridgeMac={
+                    "mode": existing.get("bridgeMacMode"),
+                    "port": existing.get("bridgeMacSourcePort"),
+                    "macObjectId": existing.get("bridgeMacObjectId"),
+                },
             )
             if not self.subset_differs(body, compare_current):
                 self.exit_json(changed=False, switch=existing)

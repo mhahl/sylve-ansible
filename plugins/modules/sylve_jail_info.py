@@ -1,91 +1,127 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# BSD-2-Clause
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import annotations
 
-DOCUMENTATION = r"""
----
+DOCUMENTATION = r"""---
 module: sylve_jail_info
 short_description: Gather information about Sylve FreeBSD jails, bootstraps, templates, and stats
 description:
-  - Query FreeBSD jails, simple summaries, live guest-info, root mountpoints, ZFS sources, logs, stats, snapshots, bootstraps, and templates.
+- Query FreeBSD jails, simple summaries, live guest-info, root mountpoints, ZFS sources, logs, stats, snapshots, bootstraps,
+  and templates.
 extends_documentation_fragment:
-  - sylve.cloud.sylve
+- sylve.cloud.sylve
 options:
   jail:
     description: Optional jail CTID or name to query a single jail.
     type: str
+    required: false
   simple:
     description: Use C(/jail/simple) instead of full C(/jail) details.
     type: bool
     default: false
+    required: false
   include_state:
     description: Fetch C(/jail/{ctid}/state) when querying a single jail.
     type: bool
     default: false
+    required: false
   include_guest_info:
     description: Fetch live OS/network info (C(/jail/{ctid}/guest-info)) when querying a single jail.
     type: bool
     default: false
+    required: false
   include_root_mountpoint:
     description: Fetch root mountpoint (C(/jail/{ctid}/root-mountpoint)) when querying a single jail.
     type: bool
     default: false
+    required: false
   include_logs:
     description: Fetch console logs (C(/jail/{ctid}/logs)) when querying a single jail.
     type: bool
     default: false
+    required: false
   include_snapshots:
     description: Fetch snapshots (C(/jail/{ctid}/snapshots)) when querying a single jail.
     type: bool
     default: false
+    required: false
   include_stats:
     description: Fetch jail stats (C(/jail/{ctid}/stats) or C(/jail/{ctid}/stats/{step})).
     type: bool
     default: false
+    required: false
   stats_step:
     description: Step parameter for C(/jail/{ctid}/stats/{step}).
     type: str
+    required: false
   include_zfs_sources:
     description: Include available jail ZFS sources (C(/jail/zfs-sources)).
     type: bool
     default: false
+    required: false
   bootstrap_pool:
     description: ZFS pool name to list pkgbase jail bootstraps from (C(/jail/bootstraps)).
     type: str
+    required: false
   include_templates:
     description: Include jail templates (C(/jail/templates)).
     type: bool
     default: false
+    required: false
+version_added: 1.0.0
+author:
+- Sylve Contributors (@mhahl)
+requirements:
+- python >= 3.10
+- PyYAML
+attributes:
+  check_mode:
+    description: Can run in check mode and return changed status prediction without modifying the target.
+    support: full
+  diff_mode:
+    description: Will return details on what has changed when in diff mode. This module does not report diffs.
+    support: none
+notes:
+- Supports C(check_mode).
+- 'C(state=present) is idempotent: the module only issues write requests when the desired state differs from the live object.'
+- Shares C(~/.config/sylve/config.yaml) contexts and C(SYLVE_*) environment variables with the C(sylve) CLI (see M(sylve.cloud.sylve_api)).
+seealso:
+- module: sylve.cloud.sylve_api
+  description: Execute any Sylve REST API endpoint directly.
+- name: sylve.cloud collection README
+  link: https://github.com/mhahl/sylve-ansible
+  description: Authentication, configuration, and inventory plugin usage.
 """
 
 EXAMPLES = r"""
 - name: List all jails across the cluster
   sylve.cloud.sylve_jail_info:
   register: jail_info
+
+- name: Gather information about Sylve FreeBSD jails, bootstraps, templates, and stats on a specific node using a named context
+  sylve.cloud.sylve_jail_info:
+    context: prod
+    node: node1.lan
+    bootstrap_pool: zroot
+  register: result
+
+- name: Show result
+  ansible.builtin.debug:
+    var: result
 """
 
-RETURN = r"""
+RETURN = r"""changed:
+  description: Whether the module made changes on the Sylve cluster.
+  returned: always
+  type: bool
+  sample: true
 jails:
   description: List of matching jails.
   returned: always
   type: list
-  elements: dict
-bootstraps:
-  description: List of jail bootstraps when C(bootstrap_pool) is specified.
-  returned: when requested
-  type: list
-  elements: dict
-templates:
-  description: List of jail templates when C(include_templates=true).
-  returned: when requested
-  type: list
-  elements: dict
-zfs_sources:
-  description: Available ZFS sources when C(include_zfs_sources=true).
-  returned: when requested
-  type: raw
+  sample: '[{"ctId": 201, "name": "app-01", "state": "RUNNING"}]'
 """
 
 from ansible_collections.sylve.cloud.plugins.module_utils.sylve import SylveModule

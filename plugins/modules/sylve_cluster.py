@@ -1,72 +1,107 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# BSD-2-Clause
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import annotations
 
-DOCUMENTATION = r"""
----
+DOCUMENTATION = r"""---
 module: sylve_cluster
 short_description: Manage Sylve cluster formation, membership, resynchronization, and cluster notes
 description:
-  - Initialize a cluster, join an existing cluster, accept a pending join, leave/reset a node, remove a peer node,
-    resynchronize Raft state, sync intra-cluster health, or manage cluster-wide notes.
+- Initialize a cluster, join an existing cluster, accept a pending join, leave/reset a node, remove a peer node, resynchronize
+  Raft state, sync intra-cluster health, or manage cluster-wide notes.
 extends_documentation_fragment:
-  - sylve.cloud.sylve
+- sylve.cloud.sylve
 options:
   action:
     description: Cluster operation to perform.
     type: str
     choices:
-      - create
-      - join
-      - accept_join
-      - leave
-      - remove_node
-      - resync
-      - sync_health
-      - note_present
-      - note_absent
+    - create
+    - join
+    - accept_join
+    - leave
+    - remove_node
+    - resync
+    - sync_health
+    - note_present
+    - note_absent
     default: create
+    required: false
   ip:
     description: Bootstrap Raft IP address for C(action=create).
     type: str
+    required: false
   leader_ip:
     description: Cluster leader IP for C(action=join).
     type: str
+    required: false
   node_ip:
     description: Joining node Raft IP for C(action=join).
     type: str
+    required: false
   node_id:
     description: Node UUID or hostname for C(join) or C(remove_node).
     type: str
+    required: false
   cluster_key:
     description: Cluster join key for C(action=join).
     type: str
+    required: false
   retain_guests:
     description: Retain local VM and jail registrations when leaving or removing a node.
     type: bool
     default: true
+    required: false
   force:
     description: Force local cluster reset or force-remove an externally fenced peer node.
     type: bool
     default: false
+    required: false
   note_id:
     description: Cluster note ID.
     type: int
+    required: false
   ids:
     description: List of cluster note IDs for bulk deletion.
     type: list
     elements: int
+    required: false
   title:
     description: Cluster note title.
     type: str
+    required: false
   content:
     description: Cluster note content.
     type: str
+    required: false
   data:
     description: Additional raw request body fields.
     type: dict
+    required: false
+version_added: 1.0.0
+author:
+- Sylve Contributors (@mhahl)
+requirements:
+- python >= 3.10
+- PyYAML
+attributes:
+  check_mode:
+    description: Can run in check mode and return changed status prediction without modifying the target.
+    support: full
+  diff_mode:
+    description: Will return details on what has changed when in diff mode. This module does not report diffs.
+    support: none
+notes:
+- Supports C(check_mode).
+- 'C(state=present) is idempotent: the module only issues write requests when the desired state differs from the live object.'
+- Shares C(~/.config/sylve/config.yaml) contexts and C(SYLVE_*) environment variables with the C(sylve) CLI (see M(sylve.cloud.sylve_api)).
+seealso:
+- module: sylve.cloud.sylve_api
+  description: Execute any Sylve REST API endpoint directly.
+- name: sylve.cloud collection README
+  link: https://github.com/mhahl/sylve-ansible
+  description: Authentication, configuration, and inventory plugin usage.
 """
 
 EXAMPLES = r"""
@@ -74,13 +109,30 @@ EXAMPLES = r"""
   sylve.cloud.sylve_cluster:
     action: create
     ip: 10.0.0.10
+
+- name: Manage Sylve cluster formation, membership, resynchronization, and cluster notes on a specific node using a named context
+  sylve.cloud.sylve_cluster:
+    context: prod
+    node: node1.lan
+    action: sync_health
+    data: {}
+  register: result
+
+- name: Show result
+  ansible.builtin.debug:
+    var: result
 """
 
-RETURN = r"""
+RETURN = r"""changed:
+  description: Whether the module made changes on the Sylve cluster.
+  returned: always
+  type: bool
+  sample: true
 cluster:
   description: Cluster or note operation result.
   returned: always
   type: raw
+  sample: '{"enabled": true, "leaderId": "node-1"}'
 """
 
 from ansible_collections.sylve.cloud.plugins.module_utils.sylve import SylveModule

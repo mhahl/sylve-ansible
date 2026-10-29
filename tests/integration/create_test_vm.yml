@@ -1,0 +1,47 @@
+---
+# Test playbook: create a Bhyve VM on a Sylve cluster using sylve.cloud.sylve_vm.
+#
+# Authentication is shared with sylve-cli: log in once with
+# `sylve login https://sylve.example.test`, or export SYLVE_SERVER/SYLVE_TOKEN.
+#
+# Run (dry run first):
+#   ansible-playbook tests/integration/create_test_vm.yml --check
+#   ansible-playbook tests/integration/create_test_vm.yml
+#
+# Override the target node or context without editing this file:
+#   ansible-playbook tests/integration/create_test_vm.yml -e sylve_node=node2.lan
+- name: Create a test Bhyve VM on Sylve
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+    sylve_context: "{{ lookup('env', 'SYLVE_CONTEXT') | default('prod', true) }}"
+    sylve_node: "{{ lookup('env', 'SYLVE_NODE') | default('node1.lan', true) }}"
+    test_vm_name: test-vm-01
+    test_vm_rid: 900
+    test_vm_pool: zroot
+    test_vm_switch: lan0
+    # NIC model must be supported by the bhyve/libvirt driver on the target
+    # node (existing VMs here use e1000; virtio-net was rejected).
+    test_vm_switch_emulation: e1000
+
+  tasks:
+    - name: Create test VM (present, not started)
+      sylve.cloud.sylve_vm:
+        context: "{{ sylve_context }}"
+        node: "{{ sylve_node }}"
+        name: "{{ test_vm_name }}"
+        rid: "{{ test_vm_rid }}"
+        cpu_cores: 1
+        ram: 1G
+        storage_pool: "{{ test_vm_pool }}"
+        storage_size: 10G
+        switch_name: "{{ test_vm_switch }}"
+        switch_emulation_type: "{{ test_vm_switch_emulation }}"
+        state: present
+      register: vm_result
+
+    - name: Show created VM
+      ansible.builtin.debug:
+        var: vm_result.vm

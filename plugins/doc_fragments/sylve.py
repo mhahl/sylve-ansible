@@ -47,7 +47,7 @@ options:
     description:
       - Override Sylve server URL (or C($SYLVE_SERVER)).
     type: str
-    aliases: [api_url, endpoint]
+    aliases: [api_url]
   token:
     description:
       - Override Bearer JWT token (or C($SYLVE_TOKEN)).

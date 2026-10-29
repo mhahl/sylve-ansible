@@ -1,35 +1,65 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# BSD-2-Clause
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import annotations
 
-DOCUMENTATION = r"""
----
+DOCUMENTATION = r"""---
 module: sylve_jail_template
 short_description: Manage Sylve FreeBSD jail templates
 description:
-  - Capture a jail as a template, deploy jails from a template, or delete a jail template.
+- Capture a jail as a template, deploy jails from a template, or delete a jail template.
 extends_documentation_fragment:
-  - sylve.cloud.sylve
+- sylve.cloud.sylve
 options:
   state:
     description: Desired template state or action.
     type: str
-    choices: [present, deployed, absent]
+    choices:
+    - present
+    - deployed
+    - absent
     default: present
+    required: false
   template_id:
     description: Jail template numeric ID.
     type: int
+    required: false
   name:
     description: Template name (for capture or lookup) or deployed jail name.
     type: str
+    required: false
   source_jail:
     description: Source jail CTID or name when capturing a template (C(state=present)).
     type: str
+    required: false
   deploy_options:
     description: Deployment payload when C(state=deployed).
     type: dict
+    required: false
+version_added: 1.0.0
+author:
+- Sylve Contributors (@mhahl)
+requirements:
+- python >= 3.10
+- PyYAML
+attributes:
+  check_mode:
+    description: Can run in check mode and return changed status prediction without modifying the target.
+    support: full
+  diff_mode:
+    description: Will return details on what has changed when in diff mode. This module does not report diffs.
+    support: none
+notes:
+- Supports C(check_mode).
+- 'C(state=present) is idempotent: the module only issues write requests when the desired state differs from the live object.'
+- Shares C(~/.config/sylve/config.yaml) contexts and C(SYLVE_*) environment variables with the C(sylve) CLI (see M(sylve.cloud.sylve_api)).
+seealso:
+- module: sylve.cloud.sylve_api
+  description: Execute any Sylve REST API endpoint directly.
+- name: sylve.cloud collection README
+  link: https://github.com/mhahl/sylve-ansible
+  description: Authentication, configuration, and inventory plugin usage.
 """
 
 EXAMPLES = r"""
@@ -38,13 +68,36 @@ EXAMPLES = r"""
     name: web-jail-template
     source_jail: 201
     state: present
+
+- name: Manage Sylve FreeBSD jail templates on a specific node using a named context
+  sylve.cloud.sylve_jail_template:
+    context: prod
+    node: node1.lan
+    name: web-jail-template
+    source_jail: app-01
+    state: present
+  register: result
+
+- name: Show result
+  ansible.builtin.debug:
+    var: result
 """
 
-RETURN = r"""
+RETURN = r"""changed:
+  description: Whether the module made changes on the Sylve cluster.
+  returned: always
+  type: bool
+  sample: true
 template:
   description: Jail template representation or deployment response.
   returned: always
   type: dict
+  sample: '{"id": 3, "name": "web-jail-template"}'
+task:
+  description: Completed lifecycle, migration, replication, or backup task details.
+  returned: when a task is executed and C(wait=true)
+  type: dict
+  sample: '{"id": 42, "status": "completed"}'
 """
 
 from ansible_collections.sylve.cloud.plugins.module_utils.sylve import SylveModule

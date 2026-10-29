@@ -1,54 +1,93 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# BSD-2-Clause
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import annotations
 
-DOCUMENTATION = r"""
----
+DOCUMENTATION = r"""---
 module: sylve_wireguard
 short_description: Manage Sylve WireGuard VPN server, server peers, and outbound clients
 description:
-  - Initialize, update, enable/disable, or delete the WireGuard server, server peers, and outbound WireGuard clients.
+- Initialize, update, enable/disable, or delete the WireGuard server, server peers, and outbound WireGuard clients.
 extends_documentation_fragment:
-  - sylve.cloud.sylve
+- sylve.cloud.sylve
 options:
   component:
     description: WireGuard component to manage.
     type: str
-    choices: [server, peer, client]
+    choices:
+    - server
+    - peer
+    - client
     default: client
+    required: false
   state:
     description: Desired state.
     type: str
-    choices: [present, absent, enabled, disabled]
+    choices:
+    - present
+    - absent
+    - enabled
+    - disabled
     default: present
+    required: false
   id:
     description: Peer ID or Client ID.
     type: int
+    required: false
   name:
     description: Peer or client name.
     type: str
+    required: false
   endpoint:
     description: Remote WireGuard endpoint (host:port) for C(component=client).
     type: str
+    required: false
   allowed_ips:
     description: List of allowed IP CIDRs.
     type: list
     elements: str
+    required: false
   port:
     description: Listen port for C(component=server).
     type: int
+    required: false
   addresses:
     description: Server tunnel addresses for C(component=server).
     type: list
     elements: str
+    required: false
   enabled:
     description: Enabled flag.
     type: bool
+    required: false
   data:
     description: Additional raw request fields.
     type: dict
+    required: false
+version_added: 1.0.0
+author:
+- Sylve Contributors (@mhahl)
+requirements:
+- python >= 3.10
+- PyYAML
+attributes:
+  check_mode:
+    description: Can run in check mode and return changed status prediction without modifying the target.
+    support: full
+  diff_mode:
+    description: Will return details on what has changed when in diff mode. This module does not report diffs.
+    support: none
+notes:
+- Supports C(check_mode).
+- 'C(state=present) is idempotent: the module only issues write requests when the desired state differs from the live object.'
+- Shares C(~/.config/sylve/config.yaml) contexts and C(SYLVE_*) environment variables with the C(sylve) CLI (see M(sylve.cloud.sylve_api)).
+seealso:
+- module: sylve.cloud.sylve_api
+  description: Execute any Sylve REST API endpoint directly.
+- name: sylve.cloud collection README
+  link: https://github.com/mhahl/sylve-ansible
+  description: Authentication, configuration, and inventory plugin usage.
 """
 
 EXAMPLES = r"""
@@ -58,13 +97,31 @@ EXAMPLES = r"""
     port: 51820
     addresses: ["10.99.0.1/24"]
     state: present
+
+- name: Manage Sylve WireGuard VPN server, server peers, and outbound clients on a specific node using a named context
+  sylve.cloud.sylve_wireguard:
+    context: prod
+    node: node1.lan
+    component: server
+    port: 51820
+    state: present
+  register: result
+
+- name: Show result
+  ansible.builtin.debug:
+    var: result
 """
 
-RETURN = r"""
+RETURN = r"""changed:
+  description: Whether the module made changes on the Sylve cluster.
+  returned: always
+  type: bool
+  sample: true
 wireguard:
   description: WireGuard resource representation.
   returned: always
   type: dict
+  sample: '{"id": 1, "name": "peer-01", "enabled": true}'
 """
 
 from ansible_collections.sylve.cloud.plugins.module_utils.sylve import SylveModule

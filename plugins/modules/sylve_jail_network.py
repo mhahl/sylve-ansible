@@ -1,23 +1,26 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# BSD-2-Clause
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import annotations
 
-DOCUMENTATION = r"""
----
+DOCUMENTATION = r"""---
 module: sylve_jail_network
 short_description: Manage network attachments for a Sylve FreeBSD jail
 description:
-  - Attach, update, or detach networks on a FreeBSD jail, or configure network inheritance.
+- Attach, update, or detach networks on a FreeBSD jail, or configure network inheritance.
 extends_documentation_fragment:
-  - sylve.cloud.sylve
+- sylve.cloud.sylve
 options:
   state:
     description: Desired network state.
     type: str
-    choices: [present, absent, inheritance]
+    choices:
+    - present
+    - absent
+    - inheritance
     default: present
+    required: false
   jail:
     description: Jail CTID or name.
     type: str
@@ -25,45 +28,82 @@ options:
   network_id:
     description: Jail network attachment ID.
     type: int
+    required: false
   name:
     description: Network attachment name.
     type: str
+    required: false
   switch_id:
     description: Switch ID.
     type: int
+    required: false
   switch_type:
     description: Switch type (C(standard) or C(manual)).
     type: str
+    required: false
   mac_id:
     description: MAC object ID.
     type: int
+    required: false
   ipv4_id:
     description: IPv4 network object ID.
     type: int
+    required: false
   ipv4_gw_id:
     description: IPv4 gateway object ID.
     type: int
+    required: false
   ipv6_id:
     description: IPv6 network object ID.
     type: int
+    required: false
   ipv6_gw_id:
     description: IPv6 gateway object ID.
     type: int
+    required: false
   dhcp:
     description: Enable DHCP on the jail interface.
     type: bool
+    required: false
   slaac:
     description: Enable IPv6 SLAAC on the jail interface.
     type: bool
+    required: false
   inherit_ipv4:
     description: Inherit host IPv4 when C(state=inheritance).
     type: bool
+    required: false
   inherit_ipv6:
     description: Inherit host IPv6 when C(state=inheritance).
     type: bool
+    required: false
   data:
     description: Additional raw request body fields.
     type: dict
+    required: false
+version_added: 1.0.0
+author:
+- Sylve Contributors (@mhahl)
+requirements:
+- python >= 3.10
+- PyYAML
+attributes:
+  check_mode:
+    description: Can run in check mode and return changed status prediction without modifying the target.
+    support: full
+  diff_mode:
+    description: Will return details on what has changed when in diff mode. This module does not report diffs.
+    support: none
+notes:
+- Supports C(check_mode).
+- 'C(state=present) is idempotent: the module only issues write requests when the desired state differs from the live object.'
+- Shares C(~/.config/sylve/config.yaml) contexts and C(SYLVE_*) environment variables with the C(sylve) CLI (see M(sylve.cloud.sylve_api)).
+seealso:
+- module: sylve.cloud.sylve_api
+  description: Execute any Sylve REST API endpoint directly.
+- name: sylve.cloud collection README
+  link: https://github.com/mhahl/sylve-ansible
+  description: Authentication, configuration, and inventory plugin usage.
 """
 
 EXAMPLES = r"""
@@ -74,13 +114,31 @@ EXAMPLES = r"""
     switch_id: 1
     dhcp: true
     state: present
+
+- name: Manage network attachments for a Sylve FreeBSD jail on a specific node using a named context
+  sylve.cloud.sylve_jail_network:
+    context: prod
+    node: node1.lan
+    jail: app-01
+    state: inheritance
+    inherit_ipv4: true
+  register: result
+
+- name: Show result
+  ansible.builtin.debug:
+    var: result
 """
 
-RETURN = r"""
+RETURN = r"""changed:
+  description: Whether the module made changes on the Sylve cluster.
+  returned: always
+  type: bool
+  sample: true
 network:
   description: Jail network attachment details.
   returned: always
   type: dict
+  sample: '{"id": 1, "name": "net0", "switchId": 2}'
 """
 
 from ansible_collections.sylve.cloud.plugins.module_utils.sylve import SylveModule

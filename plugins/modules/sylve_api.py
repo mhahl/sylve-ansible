@@ -1,24 +1,29 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# BSD-2-Clause
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import annotations
 
-DOCUMENTATION = r"""
----
+DOCUMENTATION = r"""---
 module: sylve_api
 short_description: Execute any Sylve Swagger HTTP API request directly
 description:
-  - Universal module for invoking any Sylve REST API endpoint (GET, POST, PUT, PATCH, DELETE),
-    including file uploads, binary downloads, and unauthenticated endpoints.
+- Universal module for invoking any Sylve REST API endpoint (GET, POST, PUT, PATCH, DELETE), including file uploads, binary
+  downloads, and unauthenticated endpoints.
 extends_documentation_fragment:
-  - sylve.cloud.sylve
+- sylve.cloud.sylve
 options:
   method:
     description: HTTP method.
     type: str
-    choices: [GET, POST, PUT, PATCH, DELETE]
+    choices:
+    - GET
+    - POST
+    - PUT
+    - PATCH
+    - DELETE
     default: GET
+    required: false
   path:
     description: API path without the C(/api) prefix (e.g. C(/cluster/nodes), C(/auth/preferences)).
     type: str
@@ -26,20 +31,47 @@ options:
   params:
     description: Query parameters dictionary.
     type: dict
+    required: false
   body:
     description: JSON request body.
     type: raw
-    aliases: [data]
+    aliases:
+    - data
+    required: false
   upload_file:
     description: Local file path to upload via multipart form-data.
     type: path
+    required: false
   output_file:
     description: Local destination path to stream a binary download to.
     type: path
+    required: false
   require_auth:
     description: Whether to attach the Bearer token header.
     type: bool
     default: true
+    required: false
+version_added: 1.0.0
+author:
+- Sylve Contributors (@mhahl)
+requirements:
+- python >= 3.10
+- PyYAML
+attributes:
+  check_mode:
+    description: Can run in check mode and return changed status prediction without modifying the target.
+    support: full
+  diff_mode:
+    description: Will return details on what has changed when in diff mode. This module does not report diffs.
+    support: none
+notes:
+- Supports C(check_mode).
+- 'C(state=present) is idempotent: the module only issues write requests when the desired state differs from the live object.'
+- Shares C(~/.config/sylve/config.yaml) contexts and C(SYLVE_*) environment variables with the C(sylve) CLI (see M(sylve.cloud.sylve_api)).
+seealso:
+- name: sylve.cloud collection README
+  link: https://github.com/mhahl/sylve-ansible
+  description: Authentication, configuration, and inventory plugin usage.
 """
 
 EXAMPLES = r"""
@@ -48,13 +80,35 @@ EXAMPLES = r"""
     method: GET
     path: /auth/preferences
   register: prefs
+
+- name: Execute any Sylve Swagger HTTP API request directly on a specific node using a named context
+  sylve.cloud.sylve_api:
+    context: prod
+    node: node1.lan
+    method: GET
+    path: /cluster/nodes
+  register: result
+
+- name: Show result
+  ansible.builtin.debug:
+    var: result
 """
 
-RETURN = r"""
+RETURN = r"""changed:
+  description: Whether the module made changes on the Sylve cluster.
+  returned: always
+  type: bool
+  sample: true
 data:
   description: Unwrapped response data from the Sylve API.
   returned: always
   type: raw
+  sample: '{"nodes": [{"hostname": "node1.lan", "status": "online"}]}'
+task:
+  description: Completed lifecycle, migration, replication, or backup task details.
+  returned: when a task is executed and C(wait=true)
+  type: dict
+  sample: '{"id": 42, "status": "completed"}'
 """
 
 from pathlib import Path

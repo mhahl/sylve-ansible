@@ -1,82 +1,122 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# BSD-2-Clause
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import annotations
 
-DOCUMENTATION = r"""
----
+DOCUMENTATION = r"""---
 module: sylve_download
 short_description: Manage Sylve ISO and disk-image downloads, local uploads, and signed URLs
 description:
-  - Start URL/magnet downloads, upload local ISO/image files to downloader storage, update metadata,
-    mint signed download URLs, download completed files locally, query storage paths, or delete downloads.
+- Start URL/magnet downloads, upload local ISO/image files to downloader storage, update metadata, mint signed download URLs,
+  download completed files locally, query storage paths, or delete downloads.
 extends_documentation_fragment:
-  - sylve.cloud.sylve
+- sylve.cloud.sylve
 options:
   state:
     description: Desired download state or action.
     type: str
     choices:
-      - present
-      - absent
-      - uploaded
-      - abort_upload
-      - signed_url
-      - fetched
-      - detect_filename
-      - info
+    - present
+    - absent
+    - uploaded
+    - abort_upload
+    - signed_url
+    - fetched
+    - detect_filename
+    - query
     default: present
+    required: false
   download_id:
     description: Numeric download ID (or upload staging ID for C(abort_upload)).
     type: str
-    aliases: [id]
+    aliases:
+    - id
+    required: false
   ids:
     description: List of download IDs for bulk deletion.
     type: list
     elements: int
+    required: false
   uuid:
     description: Download UUID.
     type: str
+    required: false
   url:
     description: HTTP(S) URL or magnet URI to download.
     type: str
+    required: false
   name:
     description: Filename or download name.
     type: str
-    aliases: [filename]
+    aliases:
+    - filename
+    required: false
   download_type:
     description: Usage type (C(uncategorized), C(cloud-init), C(base-rootfs)).
     type: str
     default: uncategorized
+    required: false
   storage_pool:
     description: Target ZFS storage pool.
     type: str
-    aliases: [pool]
+    aliases:
+    - pool
+    required: false
   automatic_extraction:
     description: Automatically extract compressed archives.
     type: bool
     default: true
+    required: false
   automatic_raw_conversion:
     description: Automatically convert disk images to RAW.
     type: bool
     default: false
+    required: false
   ignore_tls:
     description: Ignore TLS certificate errors on the source URL.
     type: bool
     default: false
+    required: false
   src:
     description: Local file path to upload when C(state=uploaded).
     type: path
+    required: false
   dest:
     description: Local destination file path when C(state=fetched).
     type: path
+    required: false
   params:
     description: Optional query parameters (e.g. signed capability parameters when C(state=fetched)).
     type: dict
+    required: false
   data:
     description: Additional raw request fields.
     type: dict
+    required: false
+version_added: 1.0.0
+author:
+- Sylve Contributors (@mhahl)
+requirements:
+- python >= 3.10
+- PyYAML
+attributes:
+  check_mode:
+    description: Can run in check mode and return changed status prediction without modifying the target.
+    support: full
+  diff_mode:
+    description: Will return details on what has changed when in diff mode. This module does not report diffs.
+    support: none
+notes:
+- Supports C(check_mode).
+- 'C(state=present) is idempotent: the module only issues write requests when the desired state differs from the live object.'
+- Shares C(~/.config/sylve/config.yaml) contexts and C(SYLVE_*) environment variables with the C(sylve) CLI (see M(sylve.cloud.sylve_api)).
+seealso:
+- module: sylve.cloud.sylve_api
+  description: Execute any Sylve REST API endpoint directly.
+- name: sylve.cloud collection README
+  link: https://github.com/mhahl/sylve-ansible
+  description: Authentication, configuration, and inventory plugin usage.
 """
 
 EXAMPLES = r"""
@@ -86,13 +126,29 @@ EXAMPLES = r"""
     download_type: cloud-init
     storage_pool: zroot
     state: present
+
+- name: Manage Sylve ISO and disk-image downloads, local uploads, and signed URLs on a specific node using a named context
+  sylve.cloud.sylve_download:
+    context: prod
+    node: node1.lan
+    state: query
+  register: result
+
+- name: Show result
+  ansible.builtin.debug:
+    var: result
 """
 
-RETURN = r"""
+RETURN = r"""changed:
+  description: Whether the module made changes on the Sylve cluster.
+  returned: always
+  type: bool
+  sample: true
 download:
   description: Download metadata or action result.
   returned: always
   type: raw
+  sample: '{"uuid": "9f2c...", "name": "FreeBSD-14.2.iso", "status": "completed"}'
 """
 
 from pathlib import Path
@@ -111,7 +167,7 @@ class SylveDownloadModule(SylveModule):
                 "signed_url",
                 "fetched",
                 "detect_filename",
-                "info",
+                "query",
             ],
             "default": "present",
         },
@@ -139,7 +195,7 @@ class SylveDownloadModule(SylveModule):
         url = self.params.get("url")
         payload: dict = dict(self.params.get("data") or {})
 
-        if state == "info":
+        if state == "query":
             info = {
                 "downloads": self.client.get("/utilities/downloads", node=self.node),
                 "utype": self.client.get("/utilities/downloads/utype", node=self.node),

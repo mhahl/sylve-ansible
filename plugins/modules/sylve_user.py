@@ -1,48 +1,87 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# BSD-2-Clause
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import annotations
 
-DOCUMENTATION = r"""
----
+DOCUMENTATION = r"""---
 module: sylve_user
 short_description: Manage Sylve local, PAM, and imported Unix users and user passkeys
 description:
-  - Create, import, update, or delete local, PAM, and Unix users, query user capabilities/importable users/next UID, and manage user passkeys.
+- Create, import, update, or delete local, PAM, and Unix users, query user capabilities/importable users/next UID, and manage
+  user passkeys.
 extends_documentation_fragment:
-  - sylve.cloud.sylve
+- sylve.cloud.sylve
 options:
   state:
     description: Desired user state or action.
     type: str
-    choices: [present, pam_present, imported, absent, passkey_absent, info]
+    choices:
+    - present
+    - pam_present
+    - imported
+    - absent
+    - passkey_absent
+    - query
     default: present
+    required: false
   user_id:
     description: Numeric user ID.
     type: int
-    aliases: [id]
+    aliases:
+    - id
+    required: false
   name:
     description: Username.
     type: str
+    required: false
   user_password:
     description: Password for the managed user account.
     type: str
+    required: false
   email:
     description: User email address.
     type: str
+    required: false
   uid:
     description: Unix UID.
     type: int
+    required: false
   admin:
     description: Administrator privilege flag.
     type: bool
+    required: false
   credential_id:
     description: Passkey credential ID when C(state=passkey_absent).
     type: str
+    required: false
   data:
     description: Additional raw request fields.
     type: dict
+    required: false
+version_added: 1.0.0
+author:
+- Sylve Contributors (@mhahl)
+requirements:
+- python >= 3.10
+- PyYAML
+attributes:
+  check_mode:
+    description: Can run in check mode and return changed status prediction without modifying the target.
+    support: full
+  diff_mode:
+    description: Will return details on what has changed when in diff mode. This module does not report diffs.
+    support: none
+notes:
+- Supports C(check_mode).
+- 'C(state=present) is idempotent: the module only issues write requests when the desired state differs from the live object.'
+- Shares C(~/.config/sylve/config.yaml) contexts and C(SYLVE_*) environment variables with the C(sylve) CLI (see M(sylve.cloud.sylve_api)).
+seealso:
+- module: sylve.cloud.sylve_api
+  description: Execute any Sylve REST API endpoint directly.
+- name: sylve.cloud collection README
+  link: https://github.com/mhahl/sylve-ansible
+  description: Authentication, configuration, and inventory plugin usage.
 """
 
 EXAMPLES = r"""
@@ -52,13 +91,29 @@ EXAMPLES = r"""
     user_password: "{{ vault_user_password }}"
     admin: true
     state: present
+
+- name: Manage Sylve local, PAM, and imported Unix users and user passkeys on a specific node using a named context
+  sylve.cloud.sylve_user:
+    context: prod
+    node: node1.lan
+    state: query
+  register: result
+
+- name: Show result
+  ansible.builtin.debug:
+    var: result
 """
 
-RETURN = r"""
+RETURN = r"""changed:
+  description: Whether the module made changes on the Sylve cluster.
+  returned: always
+  type: bool
+  sample: true
 user:
   description: User details or info dictionary.
   returned: always
   type: raw
+  sample: '{"id": 3, "username": "devops"}'
 """
 
 from ansible_collections.sylve.cloud.plugins.module_utils.sylve import SylveModule
@@ -74,7 +129,7 @@ class SylveUserModule(SylveModule):
                 "imported",
                 "absent",
                 "passkey_absent",
-                "info",
+                "query",
             ],
             "default": "present",
         },
@@ -106,7 +161,7 @@ class SylveUserModule(SylveModule):
                 uid_param = int(u["id"])
                 break
 
-        if state == "info":
+        if state == "query":
             info: dict = {
                 "users": users,
                 "capabilities": self.client.get("/auth/users/capabilities", node=self.node),

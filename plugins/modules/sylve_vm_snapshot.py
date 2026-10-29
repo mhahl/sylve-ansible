@@ -1,23 +1,26 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# BSD-2-Clause
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import annotations
 
-DOCUMENTATION = r"""
----
+DOCUMENTATION = r"""---
 module: sylve_vm_snapshot
 short_description: Manage ZFS snapshots for a Sylve Bhyve VM
 description:
-  - Create, roll back to, or delete crash-consistent ZFS snapshots for a Bhyve virtual machine.
+- Create, roll back to, or delete crash-consistent ZFS snapshots for a Bhyve virtual machine.
 extends_documentation_fragment:
-  - sylve.cloud.sylve
+- sylve.cloud.sylve
 options:
   state:
     description: Desired snapshot state.
     type: str
-    choices: [present, absent, rolled_back]
+    choices:
+    - present
+    - absent
+    - rolled_back
     default: present
+    required: false
   vm:
     description: VM RID or name.
     type: str
@@ -25,13 +28,39 @@ options:
   snapshot_id:
     description: Snapshot numeric ID.
     type: int
+    required: false
   name:
     description: Snapshot name.
     type: str
+    required: false
   description:
     description: Snapshot description.
     type: str
-    default: ""
+    default: ''
+    required: false
+version_added: 1.0.0
+author:
+- Sylve Contributors (@mhahl)
+requirements:
+- python >= 3.10
+- PyYAML
+attributes:
+  check_mode:
+    description: Can run in check mode and return changed status prediction without modifying the target.
+    support: full
+  diff_mode:
+    description: Will return details on what has changed when in diff mode. This module does not report diffs.
+    support: none
+notes:
+- Supports C(check_mode).
+- 'C(state=present) is idempotent: the module only issues write requests when the desired state differs from the live object.'
+- Shares C(~/.config/sylve/config.yaml) contexts and C(SYLVE_*) environment variables with the C(sylve) CLI (see M(sylve.cloud.sylve_api)).
+seealso:
+- module: sylve.cloud.sylve_api
+  description: Execute any Sylve REST API endpoint directly.
+- name: sylve.cloud collection README
+  link: https://github.com/mhahl/sylve-ansible
+  description: Authentication, configuration, and inventory plugin usage.
 """
 
 EXAMPLES = r"""
@@ -41,13 +70,31 @@ EXAMPLES = r"""
     name: pre-upgrade
     description: Before patching
     state: present
+
+- name: Manage ZFS snapshots for a Sylve Bhyve VM on a specific node using a named context
+  sylve.cloud.sylve_vm_snapshot:
+    context: prod
+    node: node1.lan
+    vm: web-01
+    name: pre-upgrade
+    state: present
+  register: result
+
+- name: Show result
+  ansible.builtin.debug:
+    var: result
 """
 
-RETURN = r"""
+RETURN = r"""changed:
+  description: Whether the module made changes on the Sylve cluster.
+  returned: always
+  type: bool
+  sample: true
 snapshot:
   description: VM snapshot details.
   returned: always
   type: dict
+  sample: '{"id": 5, "name": "pre-upgrade"}'
 """
 
 from ansible_collections.sylve.cloud.plugins.module_utils.sylve import SylveModule

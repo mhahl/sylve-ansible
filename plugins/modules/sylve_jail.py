@@ -1,119 +1,181 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# BSD-2-Clause
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import annotations
 
-DOCUMENTATION = r"""
----
+DOCUMENTATION = r"""---
 module: sylve_jail
 short_description: Manage Sylve FreeBSD jails
 description:
-  - Create, validate, update, start, stop, restart, migrate, or delete FreeBSD jails on Sylve.
-  - Supports creating jails from scratch (C(POST /jail)) or from a template (C(POST /jail/templates/{id}/jails)).
-  - Supports day-2 updates to name, description, CPU, RAM, resource limits, network inheritance, and jail options.
+- Create, validate, update, start, stop, restart, migrate, or delete FreeBSD jails on Sylve.
+- Supports creating jails from scratch (C(POST /jail)) or from a template (C(POST /jail/templates/{id}/jails)).
+- Supports day-2 updates to name, description, CPU, RAM, resource limits, network inheritance, and jail options.
 extends_documentation_fragment:
-  - sylve.cloud.sylve
+- sylve.cloud.sylve
 options:
   state:
     description: Desired jail state.
     type: str
-    choices: [present, absent, started, stopped, restarted, migrated, validated]
+    choices:
+    - present
+    - absent
+    - started
+    - stopped
+    - restarted
+    - migrated
+    - validated
     default: present
+    required: false
   name:
     description: Jail name.
     type: str
+    required: false
   ctid:
     description: Numeric jail CTID.
     type: int
-    aliases: [ct_id]
+    aliases:
+    - ct_id
+    required: false
   new_name:
     description: New name when renaming an existing jail.
     type: str
+    required: false
   description:
     description: Jail description.
     type: str
+    required: false
   pool:
     description: ZFS pool for jail root dataset.
     type: str
+    required: false
   type:
     description: Jail type (e.g. C(freebsd), C(linux)).
     type: str
     default: freebsd
+    required: false
   base:
     description: Base rootfs download UUID or bootstrap name.
     type: str
+    required: false
   template:
     description: Jail template ID when deploying from a template.
     type: int
+    required: false
   template_options:
     description: Additional options when deploying from a template.
     type: dict
+    required: false
   cores:
     description: CPU core limit.
     type: int
-    aliases: [cpu]
+    aliases:
+    - cpu
+    required: false
   memory:
     description: Memory limit (bytes or human-readable like C(1G), C(512M)).
     type: raw
-    aliases: [ram]
+    aliases:
+    - ram
+    required: false
   resource_limits:
     description: Enable or disable RCTL resource limits.
     type: bool
+    required: false
   inherit_ipv4:
     description: Inherit host IPv4 stack.
     type: bool
+    required: false
   inherit_ipv6:
     description: Inherit host IPv6 stack.
     type: bool
+    required: false
   start_at_boot:
     description: Start jail at host boot.
     type: bool
+    required: false
   boot_order:
     description: Boot order priority.
     type: int
+    required: false
   devfs_ruleset:
     description: DevFS ruleset number.
     type: int
+    required: false
   additional_options:
     description: Additional raw jail.conf options string.
     type: str
+    required: false
   allowed_options:
     description: List of allowed jail permissions (e.g. C(allow.raw_sockets)).
     type: list
     elements: str
+    required: false
   execution_timeout:
     description: Start/stop execution timeout in seconds.
     type: int
+    required: false
   fstab:
     description: Jail fstab entries string.
     type: str
+    required: false
   lifecycle_hooks:
     description: Jail lifecycle hook commands dictionary.
     type: dict
+    required: false
   metadata:
     description: Jail metadata (C(meta) and C(env)).
     type: dict
+    required: false
   resolv_conf:
     description: Custom C(/etc/resolv.conf) content.
     type: str
+    required: false
   wol:
     description: Enable Wake-on-LAN.
     type: bool
+    required: false
   target_node:
     description: Target cluster node hostname or UUID when C(state=migrated).
     type: str
+    required: false
   delete_rootfs:
     description: Delete jail root ZFS dataset when C(state=absent).
     type: bool
     default: true
+    required: false
   delete_macs:
     description: Delete unused MAC objects when C(state=absent).
     type: bool
     default: true
+    required: false
   extra_params:
     description: Additional raw fields merged into the jail creation payload.
     type: dict
+    required: false
+version_added: 1.0.0
+author:
+- Sylve Contributors (@mhahl)
+requirements:
+- python >= 3.10
+- PyYAML
+attributes:
+  check_mode:
+    description: Can run in check mode and return changed status prediction without modifying the target.
+    support: full
+  diff_mode:
+    description: Will return details on what has changed when in diff mode. This module does not report diffs.
+    support: none
+notes:
+- Supports C(check_mode).
+- 'C(state=present) is idempotent: the module only issues write requests when the desired state differs from the live object.'
+- Shares C(~/.config/sylve/config.yaml) contexts and C(SYLVE_*) environment variables with the C(sylve) CLI (see M(sylve.cloud.sylve_api)).
+seealso:
+- module: sylve.cloud.sylve_api
+  description: Execute any Sylve REST API endpoint directly.
+- name: sylve.cloud collection README
+  link: https://github.com/mhahl/sylve-ansible
+  description: Authentication, configuration, and inventory plugin usage.
 """
 
 EXAMPLES = r"""
@@ -125,17 +187,35 @@ EXAMPLES = r"""
     cores: 2
     memory: 1G
     state: started
+
+- name: Manage Sylve FreeBSD jails on a specific node using a named context
+  sylve.cloud.sylve_jail:
+    context: prod
+    node: node1.lan
+    name: app-01
+    state: started
+  register: result
+
+- name: Show result
+  ansible.builtin.debug:
+    var: result
 """
 
-RETURN = r"""
+RETURN = r"""changed:
+  description: Whether the module made changes on the Sylve cluster.
+  returned: always
+  type: bool
+  sample: true
 jail:
   description: Jail representation.
   returned: always
   type: dict
+  sample: '{"ctId": 201, "name": "app-01", "state": "RUNNING"}'
 task:
-  description: Completed lifecycle task details when applicable.
-  returned: when a lifecycle task is executed
+  description: Completed lifecycle, migration, replication, or backup task details.
+  returned: when a task is executed and C(wait=true)
   type: dict
+  sample: '{"id": 42, "status": "completed"}'
 """
 
 from ansible_collections.sylve.cloud.plugins.module_utils.sylve import (

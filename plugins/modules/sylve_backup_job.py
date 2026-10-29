@@ -1,68 +1,112 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# BSD-2-Clause
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import annotations
 
-DOCUMENTATION = r"""
----
+DOCUMENTATION = r"""---
 module: sylve_backup_job
 short_description: Manage Sylve scheduled backup jobs, runs, restores, snapshots, and events
 description:
-  - Create, update, delete, run, or restore from cluster backup jobs, and query backup job snapshots and events.
+- Create, update, delete, run, or restore from cluster backup jobs, and query backup job snapshots and events.
 extends_documentation_fragment:
-  - sylve.cloud.sylve
+- sylve.cloud.sylve
 options:
   state:
     description: Desired backup job state or action.
     type: str
-    choices: [present, absent, run, restored, snapshots, events]
+    choices:
+    - present
+    - absent
+    - run
+    - restored
+    - snapshots
+    - events
     default: present
+    required: false
   job_id:
     description: Backup job numeric ID.
     type: int
-    aliases: [id]
+    aliases:
+    - id
+    required: false
   event_id:
     description: Backup event ID when querying or waiting for an event.
     type: int
+    required: false
   remote_events:
     description: Query paginated remote backup events (C(/cluster/backups/events/remote)).
     type: bool
     default: false
+    required: false
   name:
     description: Backup job name.
     type: str
+    required: false
   target_id:
     description: Target backup storage ID.
     type: int
+    required: false
   mode:
     description: Backup mode (e.g. C(dataset), C(vm), C(jail)).
     type: str
+    required: false
   guest_type:
     description: Guest type (C(vm) or C(jail)).
     type: str
+    required: false
   guest_id:
     description: Guest RID or CTID.
     type: int
+    required: false
   runner_node_id:
     description: Runner node UUID.
     type: str
+    required: false
   cron_expr:
     description: Cron schedule expression.
     type: str
+    required: false
   enabled:
     description: Enable the backup job.
     type: bool
     default: true
+    required: false
   snapshot:
     description: Snapshot name to restore when C(state=restored).
     type: str
+    required: false
   encryption_key:
     description: Decryption key when C(state=restored).
     type: str
+    required: false
   data:
     description: Additional raw request fields.
     type: dict
+    required: false
+version_added: 1.0.0
+author:
+- Sylve Contributors (@mhahl)
+requirements:
+- python >= 3.10
+- PyYAML
+attributes:
+  check_mode:
+    description: Can run in check mode and return changed status prediction without modifying the target.
+    support: full
+  diff_mode:
+    description: Will return details on what has changed when in diff mode. This module does not report diffs.
+    support: none
+notes:
+- Supports C(check_mode).
+- 'C(state=present) is idempotent: the module only issues write requests when the desired state differs from the live object.'
+- Shares C(~/.config/sylve/config.yaml) contexts and C(SYLVE_*) environment variables with the C(sylve) CLI (see M(sylve.cloud.sylve_api)).
+seealso:
+- module: sylve.cloud.sylve_api
+  description: Execute any Sylve REST API endpoint directly.
+- name: sylve.cloud collection README
+  link: https://github.com/mhahl/sylve-ansible
+  description: Authentication, configuration, and inventory plugin usage.
 """
 
 EXAMPLES = r"""
@@ -75,13 +119,29 @@ EXAMPLES = r"""
     guest_id: 101
     cron_expr: "0 2 * * *"
     state: present
+
+- name: Manage Sylve scheduled backup jobs, runs, restores, snapshots, and events on a specific node using a named context
+  sylve.cloud.sylve_backup_job:
+    context: prod
+    node: node1.lan
+    state: events
+  register: result
+
+- name: Show result
+  ansible.builtin.debug:
+    var: result
 """
 
-RETURN = r"""
+RETURN = r"""changed:
+  description: Whether the module made changes on the Sylve cluster.
+  returned: always
+  type: bool
+  sample: true
 backup_job:
   description: Backup job, snapshot list, or event details.
   returned: always
   type: raw
+  sample: '{"id": 3, "name": "nightly-web-01", "lastStatus": "success"}'
 """
 
 from ansible_collections.sylve.cloud.plugins.module_utils.sylve import (

@@ -1047,7 +1047,7 @@ def sylve_argument_spec(**kwargs: Any) -> dict[str, Any]:
                 "save_token": {"type": "bool", "default": False},
             },
         },
-        "server": {"type": "str", "aliases": ["api_url", "endpoint"]},
+        "server": {"type": "str", "aliases": ["api_url"]},
         "token": {"type": "str", "no_log": True},
         "username": {"type": "str", "fallback": (env_fallback, ["SYLVE_USERNAME"])},
         "password": {

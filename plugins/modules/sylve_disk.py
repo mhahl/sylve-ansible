@@ -1,46 +1,74 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# BSD-2-Clause
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import annotations
 
-DOCUMENTATION = r"""
----
+DOCUMENTATION = r"""---
 module: sylve_disk
 short_description: Manage Sylve host disks, GPT partition tables, partitions, and SMART self-tests
 description:
-  - Query disks, initialize or clear GPT partition tables, create/delete partitions, run/abort SMART self-tests, and manage SMART schedules.
+- Query disks, initialize or clear GPT partition tables, create/delete partitions, run/abort SMART self-tests, and manage
+  SMART schedules.
 extends_documentation_fragment:
-  - sylve.cloud.sylve
+- sylve.cloud.sylve
 options:
   action:
     description: Disk or SMART operation to perform.
     type: str
     choices:
-      - info
-      - gpt_init
-      - gpt_clear
-      - partition_create
-      - partition_delete
-      - smart_info
-      - smart_start
-      - smart_abort
-      - smart_schedules
-      - smart_schedule_present
-      - smart_schedule_absent
+    - info
+    - gpt_init
+    - gpt_clear
+    - partition_create
+    - partition_delete
+    - smart_info
+    - smart_start
+    - smart_abort
+    - smart_schedules
+    - smart_schedule_present
+    - smart_schedule_absent
     default: info
+    required: false
   device:
     description: Disk device name (e.g. C(nda0), C(ada0)).
     type: str
+    required: false
   partition:
     description: Partition identifier (e.g. C(nda0p1)) for C(action=partition_delete).
     type: str
+    required: false
   schedule_id:
     description: SMART schedule ID.
     type: int
+    required: false
   data:
     description: Request body for partition creation, SMART self-test, or SMART schedule.
     type: dict
+    required: false
+version_added: 1.0.0
+author:
+- Sylve Contributors (@mhahl)
+requirements:
+- python >= 3.10
+- PyYAML
+attributes:
+  check_mode:
+    description: Can run in check mode and return changed status prediction without modifying the target.
+    support: full
+  diff_mode:
+    description: Will return details on what has changed when in diff mode. This module does not report diffs.
+    support: none
+notes:
+- Supports C(check_mode).
+- 'C(state=present) is idempotent: the module only issues write requests when the desired state differs from the live object.'
+- Shares C(~/.config/sylve/config.yaml) contexts and C(SYLVE_*) environment variables with the C(sylve) CLI (see M(sylve.cloud.sylve_api)).
+seealso:
+- module: sylve.cloud.sylve_api
+  description: Execute any Sylve REST API endpoint directly.
+- name: sylve.cloud collection README
+  link: https://github.com/mhahl/sylve-ansible
+  description: Authentication, configuration, and inventory plugin usage.
 """
 
 EXAMPLES = r"""
@@ -48,13 +76,29 @@ EXAMPLES = r"""
   sylve.cloud.sylve_disk:
     action: gpt_init
     device: ada1
+
+- name: Manage Sylve host disks, GPT partition tables, partitions, and SMART self-tests on a specific node using a named context
+  sylve.cloud.sylve_disk:
+    context: prod
+    node: node1.lan
+    action: info
+  register: result
+
+- name: Show result
+  ansible.builtin.debug:
+    var: result
 """
 
-RETURN = r"""
+RETURN = r"""changed:
+  description: Whether the module made changes on the Sylve cluster.
+  returned: always
+  type: bool
+  sample: true
 disk:
   description: Disk, partition, or SMART operation result.
   returned: always
   type: raw
+  sample: '{"device": "ada1", "smartStatus": "PASSED"}'
 """
 
 from ansible_collections.sylve.cloud.plugins.module_utils.sylve import SylveModule

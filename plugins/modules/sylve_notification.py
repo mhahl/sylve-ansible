@@ -1,47 +1,87 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# BSD-2-Clause
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import annotations
 
-DOCUMENTATION = r"""
----
+DOCUMENTATION = r"""---
 module: sylve_notification
 short_description: Manage Sylve notification transports, alert rules, and active notifications
 description:
-  - List, create, update, bulk-update, test, or delete notification transports and rules, or count/dismiss active notifications.
+- List, create, update, bulk-update, test, or delete notification transports and rules, or count/dismiss active notifications.
 extends_documentation_fragment:
-  - sylve.cloud.sylve
+- sylve.cloud.sylve
 options:
   resource:
     description: Notification sub-resource to manage.
     type: str
-    choices: [transport, rule, notification]
+    choices:
+    - transport
+    - rule
+    - notification
     default: rule
+    required: false
   state:
     description: Desired state or action.
     type: str
-    choices: [present, absent, tested, dismissed, dismissed_all, bulk_updated, info]
+    choices:
+    - present
+    - absent
+    - tested
+    - dismissed
+    - dismissed_all
+    - bulk_updated
+    - query
     default: present
+    required: false
   id:
     description: Numeric transport, rule, or notification ID.
     type: int
+    required: false
   ids:
     description: List of rule IDs for bulk deletion or bulk update.
     type: list
     elements: int
+    required: false
   name:
     description: Transport or rule name.
     type: str
+    required: false
   type:
     description: Transport type (e.g. C(webhook), C(smtp), C(discord)).
     type: str
+    required: false
   enabled:
     description: Enable the transport or rule.
     type: bool
+    required: false
   data:
     description: Request payload dictionary.
     type: dict
+    required: false
+version_added: 1.0.0
+author:
+- Sylve Contributors (@mhahl)
+requirements:
+- python >= 3.10
+- PyYAML
+attributes:
+  check_mode:
+    description: Can run in check mode and return changed status prediction without modifying the target.
+    support: full
+  diff_mode:
+    description: Will return details on what has changed when in diff mode. This module does not report diffs.
+    support: none
+notes:
+- Supports C(check_mode).
+- 'C(state=present) is idempotent: the module only issues write requests when the desired state differs from the live object.'
+- Shares C(~/.config/sylve/config.yaml) contexts and C(SYLVE_*) environment variables with the C(sylve) CLI (see M(sylve.cloud.sylve_api)).
+seealso:
+- module: sylve.cloud.sylve_api
+  description: Execute any Sylve REST API endpoint directly.
+- name: sylve.cloud collection README
+  link: https://github.com/mhahl/sylve-ansible
+  description: Authentication, configuration, and inventory plugin usage.
 """
 
 EXAMPLES = r"""
@@ -54,13 +94,30 @@ EXAMPLES = r"""
     data:
       url: https://hooks.example.com/sylve
     state: present
+
+- name: Manage Sylve notification transports, alert rules, and active notifications on a specific node using a named context
+  sylve.cloud.sylve_notification:
+    context: prod
+    node: node1.lan
+    resource: notification
+    state: query
+  register: result
+
+- name: Show result
+  ansible.builtin.debug:
+    var: result
 """
 
-RETURN = r"""
+RETURN = r"""changed:
+  description: Whether the module made changes on the Sylve cluster.
+  returned: always
+  type: bool
+  sample: true
 notification:
   description: Notification transport, rule, or alert result.
   returned: always
   type: raw
+  sample: '{"id": 1, "name": "ops-webhook"}'
 """
 
 from ansible_collections.sylve.cloud.plugins.module_utils.sylve import SylveModule
@@ -82,7 +139,7 @@ class SylveNotificationModule(SylveModule):
                 "dismissed",
                 "dismissed_all",
                 "bulk_updated",
-                "info",
+                "query",
             ],
             "default": "present",
         },
@@ -102,7 +159,7 @@ class SylveNotificationModule(SylveModule):
         payload: dict = dict(self.params.get("data") or {})
 
         if resource == "notification":
-            if state == "info":
+            if state == "query":
                 res = {
                     "items": self.client.get("/notifications", node=self.node),
                     "count": self.client.get("/notifications/count", node=self.node),
@@ -125,7 +182,7 @@ class SylveNotificationModule(SylveModule):
             "/notifications/transports" if resource == "transport" else "/notifications/rules"
         )
         items = self.client.get(base_path, node=self.node) or []
-        if state == "info":
+        if state == "query":
             self.exit_json(changed=False, notification=items)
             return
 

@@ -1,48 +1,77 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# BSD-2-Clause
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import annotations
 
-DOCUMENTATION = r"""
----
+DOCUMENTATION = r"""---
 module: sylve_certificate
 short_description: Manage Sylve TLS certificates, ACME renewals, activation, and archives
 description:
-  - List, create, update, delete, activate, cancel activation, renew, retry, check domains, or download archives for TLS certificates.
+- List, create, update, delete, activate, cancel activation, renew, retry, check domains, or download archives for TLS certificates.
 extends_documentation_fragment:
-  - sylve.cloud.sylve
+- sylve.cloud.sylve
 options:
   state:
     description: Desired certificate state or action.
     type: str
     choices:
-      - present
-      - absent
-      - activated
-      - activate_cancelled
-      - renewed
-      - retried
-      - domain_check
-      - archive
-      - info
+    - present
+    - absent
+    - activated
+    - activate_cancelled
+    - renewed
+    - retried
+    - domain_check
+    - archive
+    - query
     default: present
+    required: false
   cert_id:
     description: Numeric certificate ID.
     type: int
-    aliases: [id]
+    aliases:
+    - id
+    required: false
   name:
     description: Certificate name.
     type: str
+    required: false
   domain:
     description: Domain name for C(state=domain_check).
     type: str
+    required: false
   dest:
     description: Local destination path when downloading a certificate archive (C(state=archive)).
     type: path
+    required: false
   data:
     description: Certificate request payload.
     type: dict
+    required: false
+version_added: 1.0.0
+author:
+- Sylve Contributors (@mhahl)
+requirements:
+- python >= 3.10
+- PyYAML
+attributes:
+  check_mode:
+    description: Can run in check mode and return changed status prediction without modifying the target.
+    support: full
+  diff_mode:
+    description: Will return details on what has changed when in diff mode. This module does not report diffs.
+    support: none
+notes:
+- Supports C(check_mode).
+- 'C(state=present) is idempotent: the module only issues write requests when the desired state differs from the live object.'
+- Shares C(~/.config/sylve/config.yaml) contexts and C(SYLVE_*) environment variables with the C(sylve) CLI (see M(sylve.cloud.sylve_api)).
+seealso:
+- module: sylve.cloud.sylve_api
+  description: Execute any Sylve REST API endpoint directly.
+- name: sylve.cloud collection README
+  link: https://github.com/mhahl/sylve-ansible
+  description: Authentication, configuration, and inventory plugin usage.
 """
 
 EXAMPLES = r"""
@@ -50,13 +79,29 @@ EXAMPLES = r"""
   sylve.cloud.sylve_certificate:
     cert_id: 1
     state: renewed
+
+- name: Manage Sylve TLS certificates, ACME renewals, activation, and archives on a specific node using a named context
+  sylve.cloud.sylve_certificate:
+    context: prod
+    node: node1.lan
+    state: query
+  register: result
+
+- name: Show result
+  ansible.builtin.debug:
+    var: result
 """
 
-RETURN = r"""
+RETURN = r"""changed:
+  description: Whether the module made changes on the Sylve cluster.
+  returned: always
+  type: bool
+  sample: true
 certificate:
   description: Certificate details or operation result.
   returned: always
   type: raw
+  sample: '{"id": 1, "name": "node1.lan", "status": "issued"}'
 """
 
 from pathlib import Path
@@ -76,7 +121,7 @@ class SylveCertificateModule(SylveModule):
                 "retried",
                 "domain_check",
                 "archive",
-                "info",
+                "query",
             ],
             "default": "present",
         },
@@ -103,7 +148,7 @@ class SylveCertificateModule(SylveModule):
             return
 
         certs = self.client.get("/certificates", node=self.node) or []
-        if state == "info":
+        if state == "query":
             self.exit_json(changed=False, certificate=certs)
             return
 

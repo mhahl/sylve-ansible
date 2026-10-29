@@ -1,40 +1,76 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# BSD-2-Clause
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import annotations
 
-DOCUMENTATION = r"""
----
+DOCUMENTATION = r"""---
 module: sylve_task
 short_description: Query, wait for, validate, or cancel Sylve lifecycle and migration tasks
 description:
-  - Query active or recent lifecycle tasks, wait for a task by ID, validate guest migration preflight, or cancel an active migration task.
+- Query active or recent lifecycle tasks, wait for a task by ID, validate guest migration preflight, or cancel an active migration
+  task.
 extends_documentation_fragment:
-  - sylve.cloud.sylve
+- sylve.cloud.sylve
 options:
   action:
     description: Task operation to perform.
     type: str
-    choices: [active, recent, show, wait, validate_migration, cancel_migration]
+    choices:
+    - active
+    - recent
+    - show
+    - wait
+    - validate_migration
+    - cancel_migration
     default: recent
+    required: false
   task_id:
     description: Lifecycle or migration task ID.
     type: int
-    aliases: [id]
+    aliases:
+    - id
+    required: false
   guest_type:
     description: Guest type (C(vm) or C(jail)).
     type: str
+    required: false
   guest_id:
     description: Guest RID or CTID.
     type: int
+    required: false
   target_node:
     description: Target node hostname or UUID for C(action=validate_migration).
     type: str
+    required: false
   limit:
     description: Maximum recent tasks to return.
     type: int
     default: 25
+    required: false
+version_added: 1.0.0
+author:
+- Sylve Contributors (@mhahl)
+requirements:
+- python >= 3.10
+- PyYAML
+attributes:
+  check_mode:
+    description: Can run in check mode and return changed status prediction without modifying the target.
+    support: full
+  diff_mode:
+    description: Will return details on what has changed when in diff mode. This module does not report diffs.
+    support: none
+notes:
+- Supports C(check_mode).
+- 'C(state=present) is idempotent: the module only issues write requests when the desired state differs from the live object.'
+- Shares C(~/.config/sylve/config.yaml) contexts and C(SYLVE_*) environment variables with the C(sylve) CLI (see M(sylve.cloud.sylve_api)).
+seealso:
+- module: sylve.cloud.sylve_api
+  description: Execute any Sylve REST API endpoint directly.
+- name: sylve.cloud collection README
+  link: https://github.com/mhahl/sylve-ansible
+  description: Authentication, configuration, and inventory plugin usage.
 """
 
 EXAMPLES = r"""
@@ -42,13 +78,29 @@ EXAMPLES = r"""
   sylve.cloud.sylve_task:
     action: wait
     task_id: 42
+
+- name: Query, wait for, validate, or cancel Sylve lifecycle and migration tasks on a specific node using a named context
+  sylve.cloud.sylve_task:
+    context: prod
+    node: node1.lan
+    action: recent
+  register: result
+
+- name: Show result
+  ansible.builtin.debug:
+    var: result
 """
 
-RETURN = r"""
+RETURN = r"""changed:
+  description: Whether the module made changes on the Sylve cluster.
+  returned: always
+  type: bool
+  sample: true
 task:
   description: Task details or task list.
   returned: always
   type: raw
+  sample: '{"id": 42, "action": "start", "status": "completed"}'
 """
 
 from ansible_collections.sylve.cloud.plugins.module_utils.sylve import (

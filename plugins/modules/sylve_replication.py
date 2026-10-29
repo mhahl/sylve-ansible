@@ -1,68 +1,110 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# BSD-2-Clause
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import annotations
 
-DOCUMENTATION = r"""
----
+DOCUMENTATION = r"""---
 module: sylve_replication
 short_description: Manage Sylve HA replication policies, manual runs, failovers, and replication events
 description:
-  - Create, update, delete, run, or fail over cluster HA replication policies, and query replication events.
+- Create, update, delete, run, or fail over cluster HA replication policies, and query replication events.
 extends_documentation_fragment:
-  - sylve.cloud.sylve
+- sylve.cloud.sylve
 options:
   state:
     description: Desired replication policy state or action.
     type: str
-    choices: [present, absent, run, failover, events]
+    choices:
+    - present
+    - absent
+    - run
+    - failover
+    - events
     default: present
+    required: false
   policy_id:
     description: Replication policy numeric ID.
     type: int
-    aliases: [id]
+    aliases:
+    - id
+    required: false
   event_id:
     description: Replication event ID when querying or waiting for an event.
     type: int
+    required: false
   name:
     description: Policy name.
     type: str
+    required: false
   guest_type:
     description: Guest type (C(vm) or C(jail)).
     type: str
+    required: false
   guest_id:
     description: VM RID or Jail CTID.
     type: int
+    required: false
   targets:
-    description: "List of target node dicts (e.g. C([{'nodeId': 'uuid', 'weight': 100}]))."
+    description: 'List of target node dicts (e.g. C([{''nodeId'': ''uuid'', ''weight'': 100}])).'
     type: list
     elements: dict
+    required: false
   cron_expr:
     description: Cron schedule expression.
     type: str
-    default: "*/15 * * * *"
+    default: '*/15 * * * *'
+    required: false
   failover_mode:
     description: Policy failover mode (C(manual) or C(auto)) or failover action mode (C(safe) or C(force)).
     type: str
+    required: false
   target_node:
     description: Target node hostname or UUID when C(state=failover).
     type: str
+    required: false
   move_pinned_source:
     description: Update pinned source node during failover.
     type: bool
     default: true
+    required: false
   confirm_data_loss:
     description: Acknowledge potential data loss for forced failover.
     type: bool
     default: false
+    required: false
   enabled:
     description: Enable the policy.
     type: bool
     default: true
+    required: false
   data:
     description: Additional raw request fields.
     type: dict
+    required: false
+version_added: 1.0.0
+author:
+- Sylve Contributors (@mhahl)
+requirements:
+- python >= 3.10
+- PyYAML
+attributes:
+  check_mode:
+    description: Can run in check mode and return changed status prediction without modifying the target.
+    support: full
+  diff_mode:
+    description: Will return details on what has changed when in diff mode. This module does not report diffs.
+    support: none
+notes:
+- Supports C(check_mode).
+- 'C(state=present) is idempotent: the module only issues write requests when the desired state differs from the live object.'
+- Shares C(~/.config/sylve/config.yaml) contexts and C(SYLVE_*) environment variables with the C(sylve) CLI (see M(sylve.cloud.sylve_api)).
+seealso:
+- module: sylve.cloud.sylve_api
+  description: Execute any Sylve REST API endpoint directly.
+- name: sylve.cloud collection README
+  link: https://github.com/mhahl/sylve-ansible
+  description: Authentication, configuration, and inventory plugin usage.
 """
 
 EXAMPLES = r"""
@@ -75,13 +117,29 @@ EXAMPLES = r"""
       - nodeId: node2-uuid
         weight: 100
     state: present
+
+- name: Manage Sylve HA replication policies, manual runs, failovers, and replication events on a specific node using a named context
+  sylve.cloud.sylve_replication:
+    context: prod
+    node: node1.lan
+    state: events
+  register: result
+
+- name: Show result
+  ansible.builtin.debug:
+    var: result
 """
 
-RETURN = r"""
+RETURN = r"""changed:
+  description: Whether the module made changes on the Sylve cluster.
+  returned: always
+  type: bool
+  sample: true
 replication:
   description: Replication policy or event details.
   returned: always
   type: raw
+  sample: '{"id": 2, "name": "web-01-ha", "lastStatus": "success"}'
 """
 
 from ansible_collections.sylve.cloud.plugins.module_utils.sylve import (

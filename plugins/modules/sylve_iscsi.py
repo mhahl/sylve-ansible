@@ -1,40 +1,80 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# BSD-2-Clause
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import annotations
 
-DOCUMENTATION = r"""
----
+DOCUMENTATION = r"""---
 module: sylve_iscsi
 short_description: Manage Sylve iSCSI global config, initiators, targets, LUNs, and portals
 description:
-  - Query or configure iSCSI global settings, initiators (and connect), targets, target LUNs, target portals, status, and target sessions.
+- Query or configure iSCSI global settings, initiators (and connect), targets, target LUNs, target portals, status, and target
+  sessions.
 extends_documentation_fragment:
-  - sylve.cloud.sylve
+- sylve.cloud.sylve
 options:
   resource:
     description: iSCSI sub-resource to manage.
     type: str
-    choices: [config, initiator, target, lun, portal, status, sessions]
+    choices:
+    - config
+    - initiator
+    - target
+    - lun
+    - portal
+    - status
+    - sessions
     default: target
+    required: false
   state:
     description: Desired state or action.
     type: str
-    choices: [present, absent, connected, info]
+    choices:
+    - present
+    - absent
+    - connected
+    - query
     default: present
+    required: false
   id:
     description: Initiator ID, Target ID, LUN ID, or Portal ID.
     type: int
+    required: false
   target_id:
     description: Parent Target ID when managing C(lun) or C(portal).
     type: int
+    required: false
   name:
     description: Resource name or IQN.
     type: str
+    required: false
   data:
     description: Request body fields.
     type: dict
+    required: false
+version_added: 1.0.0
+author:
+- Sylve Contributors (@mhahl)
+requirements:
+- python >= 3.10
+- PyYAML
+attributes:
+  check_mode:
+    description: Can run in check mode and return changed status prediction without modifying the target.
+    support: full
+  diff_mode:
+    description: Will return details on what has changed when in diff mode. This module does not report diffs.
+    support: none
+notes:
+- Supports C(check_mode).
+- 'C(state=present) is idempotent: the module only issues write requests when the desired state differs from the live object.'
+- Shares C(~/.config/sylve/config.yaml) contexts and C(SYLVE_*) environment variables with the C(sylve) CLI (see M(sylve.cloud.sylve_api)).
+seealso:
+- module: sylve.cloud.sylve_api
+  description: Execute any Sylve REST API endpoint directly.
+- name: sylve.cloud collection README
+  link: https://github.com/mhahl/sylve-ansible
+  description: Authentication, configuration, and inventory plugin usage.
 """
 
 EXAMPLES = r"""
@@ -43,13 +83,30 @@ EXAMPLES = r"""
     resource: target
     name: iqn.2026-01.lan.sylve:storage01
     state: present
+
+- name: Manage Sylve iSCSI global config, initiators, targets, LUNs, and portals on a specific node using a named context
+  sylve.cloud.sylve_iscsi:
+    context: prod
+    node: node1.lan
+    resource: status
+    state: query
+  register: result
+
+- name: Show result
+  ansible.builtin.debug:
+    var: result
 """
 
-RETURN = r"""
+RETURN = r"""changed:
+  description: Whether the module made changes on the Sylve cluster.
+  returned: always
+  type: bool
+  sample: true
 iscsi:
   description: iSCSI resource details.
   returned: always
   type: raw
+  sample: '{"id": 1, "name": "iqn.2026-01.lan.sylve:storage01"}'
 """
 
 from ansible_collections.sylve.cloud.plugins.module_utils.sylve import SylveModule
@@ -72,7 +129,7 @@ class SylveISCSIModule(SylveModule):
         },
         "state": {
             "type": "str",
-            "choices": ["present", "absent", "connected", "info"],
+            "choices": ["present", "absent", "connected", "query"],
             "default": "present",
         },
         "id": {"type": "int"},
@@ -103,7 +160,7 @@ class SylveISCSIModule(SylveModule):
 
         if res_type == "config":
             current = self.client.get("/iscsi/config", node=self.node) or {}
-            if state == "info" or (
+            if state == "query" or (
                 isinstance(current, dict) and not self.subset_differs(payload, current)
             ):
                 self.exit_json(changed=False, iscsi=current)
@@ -140,7 +197,7 @@ class SylveISCSIModule(SylveModule):
 
         base_path = "/iscsi/initiators" if res_type == "initiator" else "/iscsi/targets"
         items = self.client.get(base_path, node=self.node) or []
-        if state == "info":
+        if state == "query":
             self.exit_json(changed=False, iscsi=items)
             return
 

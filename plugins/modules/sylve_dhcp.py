@@ -1,58 +1,98 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# BSD-2-Clause
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import annotations
 
-DOCUMENTATION = r"""
----
+DOCUMENTATION = r"""---
 module: sylve_dhcp
 short_description: Manage Sylve DHCP service configuration, IP ranges, and leases
 description:
-  - Configure DHCP global settings, IPv4/IPv6 ranges, static leases, or delete dynamic leases.
+- Configure DHCP global settings, IPv4/IPv6 ranges, static leases, or delete dynamic leases.
 extends_documentation_fragment:
-  - sylve.cloud.sylve
+- sylve.cloud.sylve
 options:
   resource:
     description: DHCP sub-resource to manage.
     type: str
-    choices: [config, range, lease, dynamic_lease]
+    choices:
+    - config
+    - range
+    - lease
+    - dynamic_lease
     default: range
+    required: false
   state:
     description: Desired state.
     type: str
-    choices: [present, absent]
+    choices:
+    - present
+    - absent
     default: present
+    required: false
   id:
     description: Numeric ID of the DHCP range or static lease.
     type: int
+    required: false
   start_ip:
     description: Range start IP address when C(resource=range).
     type: str
+    required: false
   end_ip:
     description: Range end IP address when C(resource=range).
     type: str
+    required: false
   type:
     description: Range type (e.g. C(ipv4), C(ipv6)) when C(resource=range).
     type: str
+    required: false
   expiry:
     description: Lease expiry in seconds.
     type: int
+    required: false
   slaac:
     description: Enable SLAAC on IPv6 range.
     type: bool
+    required: false
   hostname:
     description: Static lease hostname when C(resource=lease).
     type: str
+    required: false
   ip:
     description: Static or dynamic lease IP address.
     type: str
+    required: false
   mac:
     description: Static or dynamic lease MAC address.
     type: str
+    required: false
   data:
     description: Additional raw request fields (or full body for C(resource=config)).
     type: dict
+    required: false
+version_added: 1.0.0
+author:
+- Sylve Contributors (@mhahl)
+requirements:
+- python >= 3.10
+- PyYAML
+attributes:
+  check_mode:
+    description: Can run in check mode and return changed status prediction without modifying the target.
+    support: full
+  diff_mode:
+    description: Will return details on what has changed when in diff mode. This module does not report diffs.
+    support: none
+notes:
+- Supports C(check_mode).
+- 'C(state=present) is idempotent: the module only issues write requests when the desired state differs from the live object.'
+- Shares C(~/.config/sylve/config.yaml) contexts and C(SYLVE_*) environment variables with the C(sylve) CLI (see M(sylve.cloud.sylve_api)).
+seealso:
+- module: sylve.cloud.sylve_api
+  description: Execute any Sylve REST API endpoint directly.
+- name: sylve.cloud collection README
+  link: https://github.com/mhahl/sylve-ansible
+  description: Authentication, configuration, and inventory plugin usage.
 """
 
 EXAMPLES = r"""
@@ -64,13 +104,33 @@ EXAMPLES = r"""
     end_ip: 192.168.10.200
     expiry: 3600
     state: present
+
+- name: Manage Sylve DHCP service configuration, IP ranges, and leases on a specific node using a named context
+  sylve.cloud.sylve_dhcp:
+    context: prod
+    node: node1.lan
+    resource: range
+    state: present
+    type: ipv4
+    start_ip: 192.168.10.100
+    end_ip: 192.168.10.200
+  register: result
+
+- name: Show result
+  ansible.builtin.debug:
+    var: result
 """
 
-RETURN = r"""
+RETURN = r"""changed:
+  description: Whether the module made changes on the Sylve cluster.
+  returned: always
+  type: bool
+  sample: true
 dhcp:
   description: DHCP resource details.
   returned: always
-  type: dict
+  type: raw
+  sample: '{"id": 4, "startIp": "192.168.10.100", "endIp": "192.168.10.200"}'
 """
 
 from ansible_collections.sylve.cloud.plugins.module_utils.sylve import SylveModule

@@ -1,0 +1,50 @@
+---
+# Test playbook: deploy a reusable cloud-init template to a Sylve cluster
+# using sylve.cloud.sylve_cloud_init_template.
+#
+# Authentication is shared with sylve-cli: log in once with
+# `sylve login https://sylve.example.test`, or export SYLVE_SERVER/SYLVE_TOKEN.
+#
+# Run (dry run first):
+#   ansible-playbook tests/integration/create_cloud_init_template.yml --check
+#   ansible-playbook tests/integration/create_cloud_init_template.yml
+- name: Deploy a cloud-init template on Sylve
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+    sylve_context: "{{ lookup('env', 'SYLVE_CONTEXT') | default('prod', true) }}"
+    sylve_node: "{{ lookup('env', 'SYLVE_NODE') | default('node1.lan', true) }}"
+    test_template_name: test-cloud-init-01
+
+  tasks:
+    - name: Deploy reusable cloud-init template
+      sylve.cloud.sylve_cloud_init_template:
+        context: "{{ sylve_context }}"
+        node: "{{ sylve_node }}"
+        name: "{{ test_template_name }}"
+        user_data: |
+          #cloud-config
+          hostname: test-vm
+          users:
+            - name: freebsd
+              sudo: ALL=(ALL) NOPASSWD:ALL
+              ssh_authorized_keys:
+                - ssh-ed25519 AAAAtest-key
+        meta_data: |
+          instance-id: test-cloud-init-01
+          local-hostname: test-vm
+        network_config: |
+          version: 1
+          config:
+            - type: physical
+              name: eth0
+              subnets:
+                - type: dhcp
+        state: present
+      register: template_result
+
+    - name: Show deployed template
+      ansible.builtin.debug:
+        var: template_result.template

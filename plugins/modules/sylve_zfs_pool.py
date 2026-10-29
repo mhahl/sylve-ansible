@@ -1,58 +1,90 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# BSD-2-Clause
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import annotations
 
-DOCUMENTATION = r"""
----
+DOCUMENTATION = r"""---
 module: sylve_zfs_pool
 short_description: Manage Sylve ZFS storage pools, devices, scrubs, and scrub schedules
 description:
-  - Create, edit, delete, scrub, detach/replace devices on ZFS pools, or manage ZFS pool scrub schedules.
+- Create, edit, delete, scrub, detach/replace devices on ZFS pools, or manage ZFS pool scrub schedules.
 extends_documentation_fragment:
-  - sylve.cloud.sylve
+- sylve.cloud.sylve
 options:
   state:
     description: Desired ZFS pool state or action.
     type: str
     choices:
-      - present
-      - absent
-      - scrubbed
-      - device_detached
-      - device_replaced
-      - scrub_schedule_present
-      - scrub_schedule_absent
+    - present
+    - absent
+    - scrubbed
+    - device_detached
+    - device_replaced
+    - scrub_schedule_present
+    - scrub_schedule_absent
     default: present
+    required: false
   name:
     description: ZFS pool name.
     type: str
+    required: false
   guid:
     description: ZFS pool GUID.
     type: str
+    required: false
   schedule_id:
     description: Scrub schedule ID when managing scrub schedules.
     type: int
+    required: false
   cron_expr:
     description: Cron schedule expression for scrub schedules.
     type: str
+    required: false
   properties:
     description: Pool properties dictionary.
     type: dict
+    required: false
   vdevs:
     description: Pool vdev layout list when creating a pool.
     type: list
     elements: dict
+    required: false
   device:
     description: Device identifier for C(device_detached) or old device for C(device_replaced).
     type: str
+    required: false
   new_device:
     description: Replacement device identifier for C(device_replaced).
     type: str
+    required: false
   data:
     description: Additional raw request body fields.
     type: dict
+    required: false
+version_added: 1.0.0
+author:
+- Sylve Contributors (@mhahl)
+requirements:
+- python >= 3.10
+- PyYAML
+attributes:
+  check_mode:
+    description: Can run in check mode and return changed status prediction without modifying the target.
+    support: full
+  diff_mode:
+    description: Will return details on what has changed when in diff mode. This module does not report diffs.
+    support: none
+notes:
+- Supports C(check_mode).
+- 'C(state=present) is idempotent: the module only issues write requests when the desired state differs from the live object.'
+- Shares C(~/.config/sylve/config.yaml) contexts and C(SYLVE_*) environment variables with the C(sylve) CLI (see M(sylve.cloud.sylve_api)).
+seealso:
+- module: sylve.cloud.sylve_api
+  description: Execute any Sylve REST API endpoint directly.
+- name: sylve.cloud collection README
+  link: https://github.com/mhahl/sylve-ansible
+  description: Authentication, configuration, and inventory plugin usage.
 """
 
 EXAMPLES = r"""
@@ -60,13 +92,30 @@ EXAMPLES = r"""
   sylve.cloud.sylve_zfs_pool:
     name: zroot
     state: scrubbed
+
+- name: Manage Sylve ZFS storage pools, devices, scrubs, and scrub schedules on a specific node using a named context
+  sylve.cloud.sylve_zfs_pool:
+    context: prod
+    node: node1.lan
+    name: zroot
+    state: scrubbed
+  register: result
+
+- name: Show result
+  ansible.builtin.debug:
+    var: result
 """
 
-RETURN = r"""
+RETURN = r"""changed:
+  description: Whether the module made changes on the Sylve cluster.
+  returned: always
+  type: bool
+  sample: true
 pool:
   description: ZFS pool or scrub schedule details.
   returned: always
   type: dict
+  sample: '{"name": "zroot", "state": "ONLINE"}'
 """
 
 from ansible_collections.sylve.cloud.plugins.module_utils.sylve import SylveModule

@@ -1,73 +1,119 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# BSD-2-Clause
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import annotations
 
-DOCUMENTATION = r"""
----
+DOCUMENTATION = r"""---
 module: sylve_firewall
 short_description: Manage Sylve PF firewall traffic rules, NAT rules, and advanced settings
 description:
-  - Create, update, reorder, delete, or bulk-delete PF firewall traffic and NAT rules, or update/preview advanced PF settings.
+- Create, update, reorder, delete, or bulk-delete PF firewall traffic and NAT rules, or update/preview advanced PF settings.
 extends_documentation_fragment:
-  - sylve.cloud.sylve
+- sylve.cloud.sylve
 options:
   rule_type:
     description: Firewall component to manage.
     type: str
-    choices: [traffic, nat, advanced]
+    choices:
+    - traffic
+    - nat
+    - advanced
     default: traffic
+    required: false
   state:
     description: Desired state or operation.
     type: str
-    choices: [present, absent, reordered, preview]
+    choices:
+    - present
+    - absent
+    - reordered
+    - preview
     default: present
+    required: false
   rule_id:
     description: Numeric rule ID.
     type: int
-    aliases: [id]
+    aliases:
+    - id
+    required: false
   ids:
     description: List of rule IDs for bulk deletion (C(state=absent)) or reordering (C(state=reordered)).
     type: list
     elements: int
+    required: false
   name:
     description: Rule name.
     type: str
+    required: false
   priority:
     description: Rule evaluation priority.
     type: int
+    required: false
   action:
     description: Traffic rule action (e.g. C(pass), C(block)).
     type: str
+    required: false
   nat_type:
     description: NAT rule type (e.g. C(nat), C(rdr), C(binat)) when C(rule_type=nat).
     type: str
+    required: false
   direction:
     description: Packet direction (C(in) or C(out)).
     type: str
+    required: false
   protocol:
     description: Protocol (e.g. C(tcp), C(udp), C(icmp), C(any)).
     type: str
+    required: false
   interface:
     description: Network interface.
     type: str
+    required: false
   source:
     description: Source address/object.
     type: str
+    required: false
   destination:
     description: Destination address/object.
     type: str
+    required: false
   dst_ports:
     description: Destination port(s).
     type: str
+    required: false
   enabled:
     description: Enable the rule.
     type: bool
     default: true
+    required: false
   data:
     description: Additional raw request fields (or full body for C(rule_type=advanced)).
     type: dict
+    required: false
+version_added: 1.0.0
+author:
+- Sylve Contributors (@mhahl)
+requirements:
+- python >= 3.10
+- PyYAML
+attributes:
+  check_mode:
+    description: Can run in check mode and return changed status prediction without modifying the target.
+    support: full
+  diff_mode:
+    description: Will return details on what has changed when in diff mode. This module does not report diffs.
+    support: none
+notes:
+- Supports C(check_mode).
+- 'C(state=present) is idempotent: the module only issues write requests when the desired state differs from the live object.'
+- Shares C(~/.config/sylve/config.yaml) contexts and C(SYLVE_*) environment variables with the C(sylve) CLI (see M(sylve.cloud.sylve_api)).
+seealso:
+- module: sylve.cloud.sylve_api
+  description: Execute any Sylve REST API endpoint directly.
+- name: sylve.cloud collection README
+  link: https://github.com/mhahl/sylve-ansible
+  description: Authentication, configuration, and inventory plugin usage.
 """
 
 EXAMPLES = r"""
@@ -82,13 +128,34 @@ EXAMPLES = r"""
     dst_ports: "443"
     enabled: true
     state: present
+
+- name: Manage Sylve PF firewall traffic rules, NAT rules, and advanced settings on a specific node using a named context
+  sylve.cloud.sylve_firewall:
+    context: prod
+    node: node1.lan
+    rule_type: traffic
+    state: present
+    name: allow-https
+    action: pass
+    direction: in
+    protocol: tcp
+  register: result
+
+- name: Show result
+  ansible.builtin.debug:
+    var: result
 """
 
-RETURN = r"""
+RETURN = r"""changed:
+  description: Whether the module made changes on the Sylve cluster.
+  returned: always
+  type: bool
+  sample: true
 firewall:
   description: Firewall rule or settings result.
   returned: always
-  type: dict
+  type: raw
+  sample: '{"id": 7, "name": "allow-https", "action": "pass"}'
 """
 
 from ansible_collections.sylve.cloud.plugins.module_utils.sylve import SylveModule

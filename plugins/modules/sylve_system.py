@@ -1,64 +1,94 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# BSD-2-Clause
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import annotations
 
-DOCUMENTATION = r"""
----
+DOCUMENTATION = r"""---
 module: sylve_system
 short_description: Manage Sylve system initialization, pools, services, tunables, PCI passthrough, and files
 description:
-  - Initialize Sylve, configure usable ZFS pools, control system services, set sysctl tunables,
-    manage PCI passthrough (PPT) devices, run health checks, or manage remote files via file-explorer endpoints.
+- Initialize Sylve, configure usable ZFS pools, control system services, set sysctl tunables, manage PCI passthrough (PPT)
+  devices, run health checks, or manage remote files via file-explorer endpoints.
 extends_documentation_fragment:
-  - sylve.cloud.sylve
+- sylve.cloud.sylve
 options:
   action:
     description: System operation to perform.
     type: str
     choices:
-      - info
-      - initialize
-      - set_pools
-      - service
-      - tunable_set
-      - ppt_enable
-      - ppt_import
-      - ppt_prepare
-      - ppt_disable
-      - file_list
-      - file_create
-      - file_copy_move
-      - file_delete
-      - file_rename
-      - file_upload
-      - file_upload_revert
-      - file_download
-      - health
+    - info
+    - initialize
+    - set_pools
+    - service
+    - tunable_set
+    - ppt_enable
+    - ppt_import
+    - ppt_prepare
+    - ppt_disable
+    - file_list
+    - file_create
+    - file_copy_move
+    - file_delete
+    - file_rename
+    - file_upload
+    - file_upload_revert
+    - file_download
+    - health
     default: info
+    required: false
   pools:
     description: List of usable ZFS pool names for C(action=set_pools).
     type: list
     elements: str
+    required: false
   service:
     description: Service name for C(action=service).
     type: str
+    required: false
   ppt_id:
     description: PCI passthrough device ID for C(action=ppt_disable).
     type: int
+    required: false
   path:
     description: Remote file or directory path for file-explorer operations.
     type: str
+    required: false
   src:
     description: Local source file for C(action=file_upload).
     type: path
+    required: false
   dest:
     description: Local destination file for C(action=file_download).
     type: path
+    required: false
   data:
     description: Request payload dictionary.
     type: dict
+    required: false
+version_added: 1.0.0
+author:
+- Sylve Contributors (@mhahl)
+requirements:
+- python >= 3.10
+- PyYAML
+attributes:
+  check_mode:
+    description: Can run in check mode and return changed status prediction without modifying the target.
+    support: full
+  diff_mode:
+    description: Will return details on what has changed when in diff mode. This module does not report diffs.
+    support: none
+notes:
+- Supports C(check_mode).
+- 'C(state=present) is idempotent: the module only issues write requests when the desired state differs from the live object.'
+- Shares C(~/.config/sylve/config.yaml) contexts and C(SYLVE_*) environment variables with the C(sylve) CLI (see M(sylve.cloud.sylve_api)).
+seealso:
+- module: sylve.cloud.sylve_api
+  description: Execute any Sylve REST API endpoint directly.
+- name: sylve.cloud collection README
+  link: https://github.com/mhahl/sylve-ansible
+  description: Authentication, configuration, and inventory plugin usage.
 """
 
 EXAMPLES = r"""
@@ -66,13 +96,29 @@ EXAMPLES = r"""
   sylve.cloud.sylve_system:
     action: set_pools
     pools: [zroot, tank]
+
+- name: Manage Sylve system initialization, pools, services, tunables, PCI passthrough, and files on a specific node using a named context
+  sylve.cloud.sylve_system:
+    context: prod
+    node: node1.lan
+    action: info
+  register: result
+
+- name: Show result
+  ansible.builtin.debug:
+    var: result
 """
 
-RETURN = r"""
+RETURN = r"""changed:
+  description: Whether the module made changes on the Sylve cluster.
+  returned: always
+  type: bool
+  sample: true
 system:
   description: System operation result.
   returned: always
   type: raw
+  sample: '{"pools": ["zroot", "tank"]}'
 """
 
 from pathlib import Path

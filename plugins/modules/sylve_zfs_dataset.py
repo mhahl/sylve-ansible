@@ -1,53 +1,90 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# BSD-2-Clause
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import annotations
 
-DOCUMENTATION = r"""
----
+DOCUMENTATION = r"""---
 module: sylve_zfs_dataset
 short_description: Manage Sylve ZFS filesystems and volumes
 description:
-  - Create, edit, flash, delete, or bulk-delete ZFS filesystems and volumes (zvols).
+- Create, edit, flash, delete, or bulk-delete ZFS filesystems and volumes (zvols).
 extends_documentation_fragment:
-  - sylve.cloud.sylve
+- sylve.cloud.sylve
 options:
   state:
     description: Desired dataset state or action.
     type: str
-    choices: [present, absent, flashed]
+    choices:
+    - present
+    - absent
+    - flashed
     default: present
+    required: false
   type:
     description: Dataset type.
     type: str
-    choices: [filesystem, volume]
+    choices:
+    - filesystem
+    - volume
     default: filesystem
+    required: false
   parent:
     description: Parent dataset path when creating (e.g. C(zroot)).
     type: str
+    required: false
   name:
     description: Dataset leaf name (or full path for lookup).
     type: str
+    required: false
   guid:
     description: Dataset GUID.
     type: str
+    required: false
   guids:
     description: List of dataset GUIDs for bulk deletion (C(DELETE /zfs/datasets)).
     type: list
     elements: str
+    required: false
   size:
     description: Volume size (e.g. C(10G)) when C(type=volume).
     type: str
+    required: false
   properties:
     description: ZFS dataset properties dictionary.
     type: dict
+    required: false
   image_uuid:
     description: Image UUID when C(state=flashed) on a volume.
     type: str
+    required: false
   data:
     description: Additional raw request fields.
     type: dict
+    required: false
+version_added: 1.0.0
+author:
+- Sylve Contributors (@mhahl)
+requirements:
+- python >= 3.10
+- PyYAML
+attributes:
+  check_mode:
+    description: Can run in check mode and return changed status prediction without modifying the target.
+    support: full
+  diff_mode:
+    description: Will return details on what has changed when in diff mode. This module does not report diffs.
+    support: none
+notes:
+- Supports C(check_mode).
+- 'C(state=present) is idempotent: the module only issues write requests when the desired state differs from the live object.'
+- Shares C(~/.config/sylve/config.yaml) contexts and C(SYLVE_*) environment variables with the C(sylve) CLI (see M(sylve.cloud.sylve_api)).
+seealso:
+- module: sylve.cloud.sylve_api
+  description: Execute any Sylve REST API endpoint directly.
+- name: sylve.cloud collection README
+  link: https://github.com/mhahl/sylve-ansible
+  description: Authentication, configuration, and inventory plugin usage.
 """
 
 EXAMPLES = r"""
@@ -57,13 +94,32 @@ EXAMPLES = r"""
     parent: zroot
     name: appdata
     state: present
+
+- name: Manage Sylve ZFS filesystems and volumes on a specific node using a named context
+  sylve.cloud.sylve_zfs_dataset:
+    context: prod
+    node: node1.lan
+    type: filesystem
+    parent: zroot
+    name: appdata
+    state: present
+  register: result
+
+- name: Show result
+  ansible.builtin.debug:
+    var: result
 """
 
-RETURN = r"""
+RETURN = r"""changed:
+  description: Whether the module made changes on the Sylve cluster.
+  returned: always
+  type: bool
+  sample: true
 dataset:
   description: ZFS dataset details.
   returned: always
   type: dict
+  sample: '{"name": "zroot/appdata", "type": "FILESYSTEM"}'
 """
 
 from ansible_collections.sylve.cloud.plugins.module_utils.sylve import SylveModule

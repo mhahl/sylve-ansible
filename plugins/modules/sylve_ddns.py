@@ -1,43 +1,77 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# BSD-2-Clause
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import annotations
 
-DOCUMENTATION = r"""
----
+DOCUMENTATION = r"""---
 module: sylve_ddns
 short_description: Manage Sylve Dynamic DNS entries
 description:
-  - List, create, update, synchronize, or delete Dynamic DNS entries on Sylve.
+- List, create, update, synchronize, or delete Dynamic DNS entries on Sylve.
 extends_documentation_fragment:
-  - sylve.cloud.sylve
+- sylve.cloud.sylve
 options:
   state:
     description: Desired DDNS entry state or action.
     type: str
-    choices: [present, absent, synced, info]
+    choices:
+    - present
+    - absent
+    - synced
+    - query
     default: present
+    required: false
   entry_id:
     description: Numeric DDNS entry ID.
     type: int
-    aliases: [id]
+    aliases:
+    - id
+    required: false
   name:
     description: DDNS entry name or hostname.
     type: str
+    required: false
   provider:
     description: DDNS provider name.
     type: str
+    required: false
   domain:
     description: Domain or record to update.
     type: str
+    required: false
   enabled:
     description: Enable the DDNS entry.
     type: bool
     default: true
+    required: false
   data:
     description: Additional raw request fields.
     type: dict
+    required: false
+version_added: 1.0.0
+author:
+- Sylve Contributors (@mhahl)
+requirements:
+- python >= 3.10
+- PyYAML
+attributes:
+  check_mode:
+    description: Can run in check mode and return changed status prediction without modifying the target.
+    support: full
+  diff_mode:
+    description: Will return details on what has changed when in diff mode. This module does not report diffs.
+    support: none
+notes:
+- Supports C(check_mode).
+- 'C(state=present) is idempotent: the module only issues write requests when the desired state differs from the live object.'
+- Shares C(~/.config/sylve/config.yaml) contexts and C(SYLVE_*) environment variables with the C(sylve) CLI (see M(sylve.cloud.sylve_api)).
+seealso:
+- module: sylve.cloud.sylve_api
+  description: Execute any Sylve REST API endpoint directly.
+- name: sylve.cloud collection README
+  link: https://github.com/mhahl/sylve-ansible
+  description: Authentication, configuration, and inventory plugin usage.
 """
 
 EXAMPLES = r"""
@@ -47,13 +81,29 @@ EXAMPLES = r"""
     provider: cloudflare
     domain: home.example.com
     state: present
+
+- name: Manage Sylve Dynamic DNS entries on a specific node using a named context
+  sylve.cloud.sylve_ddns:
+    context: prod
+    node: node1.lan
+    state: query
+  register: result
+
+- name: Show result
+  ansible.builtin.debug:
+    var: result
 """
 
-RETURN = r"""
+RETURN = r"""changed:
+  description: Whether the module made changes on the Sylve cluster.
+  returned: always
+  type: bool
+  sample: true
 ddns:
   description: Dynamic DNS entry details.
   returned: always
   type: raw
+  sample: '{"id": 1, "name": "home-wan", "domain": "home.example.com"}'
 """
 
 from ansible_collections.sylve.cloud.plugins.module_utils.sylve import SylveModule
@@ -63,7 +113,7 @@ class SylveDDNSModule(SylveModule):
     argument_spec = {
         "state": {
             "type": "str",
-            "choices": ["present", "absent", "synced", "info"],
+            "choices": ["present", "absent", "synced", "query"],
             "default": "present",
         },
         "entry_id": {"type": "int", "aliases": ["id"]},
@@ -77,7 +127,7 @@ class SylveDDNSModule(SylveModule):
     def run(self) -> None:
         state = self.params["state"]
         entries = self.client.get("/dynamic-dns/entries", node=self.node) or []
-        if state == "info":
+        if state == "query":
             self.exit_json(changed=False, ddns=entries)
             return
 

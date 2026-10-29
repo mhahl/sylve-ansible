@@ -1,54 +1,82 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# BSD-2-Clause
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import annotations
 
-DOCUMENTATION = r"""
----
+DOCUMENTATION = r"""---
 module: sylve_directory_service
 short_description: Manage Sylve Active Directory and Kerberos directory services
 description:
-  - Configure Active Directory (check, enable/disable, join, leave, status), Kerberos realms (discover, CRUD),
-    Kerberos keytabs (CRUD), Kerberos settings, and query directory principals.
+- Configure Active Directory (check, enable/disable, join, leave, status), Kerberos realms (discover, CRUD), Kerberos keytabs
+  (CRUD), Kerberos settings, and query directory principals.
 extends_documentation_fragment:
-  - sylve.cloud.sylve
+- sylve.cloud.sylve
 options:
   service:
     description: Directory service component to manage.
     type: str
     choices:
-      - active_directory
-      - kerberos_realm
-      - kerberos_keytab
-      - kerberos_settings
-      - principals
+    - active_directory
+    - kerberos_realm
+    - kerberos_keytab
+    - kerberos_settings
+    - principals
     default: active_directory
+    required: false
   action:
     description: Operation to perform.
     type: str
     choices:
-      - info
-      - present
-      - absent
-      - check
-      - enabled
-      - join
-      - leave
-      - discover
+    - info
+    - present
+    - absent
+    - check
+    - enabled
+    - join
+    - leave
+    - discover
     default: present
+    required: false
   id:
     description: Numeric Kerberos realm or keytab ID.
     type: int
+    required: false
   name:
     description: Realm or keytab name.
     type: str
+    required: false
   enabled:
     description: Enable or disable Active Directory when C(action=enabled).
     type: bool
+    required: false
   data:
     description: Request body fields.
     type: dict
+    required: false
+version_added: 1.0.0
+author:
+- Sylve Contributors (@mhahl)
+requirements:
+- python >= 3.10
+- PyYAML
+attributes:
+  check_mode:
+    description: Can run in check mode and return changed status prediction without modifying the target.
+    support: full
+  diff_mode:
+    description: Will return details on what has changed when in diff mode. This module does not report diffs.
+    support: none
+notes:
+- Supports C(check_mode).
+- 'C(state=present) is idempotent: the module only issues write requests when the desired state differs from the live object.'
+- Shares C(~/.config/sylve/config.yaml) contexts and C(SYLVE_*) environment variables with the C(sylve) CLI (see M(sylve.cloud.sylve_api)).
+seealso:
+- module: sylve.cloud.sylve_api
+  description: Execute any Sylve REST API endpoint directly.
+- name: sylve.cloud collection README
+  link: https://github.com/mhahl/sylve-ansible
+  description: Authentication, configuration, and inventory plugin usage.
 """
 
 EXAMPLES = r"""
@@ -56,13 +84,30 @@ EXAMPLES = r"""
   sylve.cloud.sylve_directory_service:
     service: active_directory
     action: info
+
+- name: Manage Sylve Active Directory and Kerberos directory services on a specific node using a named context
+  sylve.cloud.sylve_directory_service:
+    context: prod
+    node: node1.lan
+    service: active_directory
+    action: info
+  register: result
+
+- name: Show result
+  ansible.builtin.debug:
+    var: result
 """
 
-RETURN = r"""
+RETURN = r"""changed:
+  description: Whether the module made changes on the Sylve cluster.
+  returned: always
+  type: bool
+  sample: true
 directory_service:
   description: Directory service configuration or operation result.
   returned: always
   type: raw
+  sample: '{"enabled": true}'
 """
 
 from ansible_collections.sylve.cloud.plugins.module_utils.sylve import SylveModule

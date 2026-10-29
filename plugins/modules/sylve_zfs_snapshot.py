@@ -1,64 +1,98 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# BSD-2-Clause
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import annotations
 
-DOCUMENTATION = r"""
----
+DOCUMENTATION = r"""---
 module: sylve_zfs_snapshot
 short_description: Manage Sylve ZFS dataset snapshots and periodic snapshot schedules
 description:
-  - Create, roll back to, or delete ZFS dataset snapshots, or manage periodic snapshot schedules.
+- Create, roll back to, or delete ZFS dataset snapshots, or manage periodic snapshot schedules.
 extends_documentation_fragment:
-  - sylve.cloud.sylve
+- sylve.cloud.sylve
 options:
   state:
     description: Desired snapshot or periodic schedule state.
     type: str
     choices:
-      - present
-      - absent
-      - rolled_back
-      - periodic_present
-      - periodic_absent
+    - present
+    - absent
+    - rolled_back
+    - periodic_present
+    - periodic_absent
     default: present
+    required: false
   dataset:
     description: Target dataset name or GUID.
     type: str
+    required: false
   name:
     description: Snapshot name (after C(@)) or full snapshot name (C(dataset@snap)).
     type: str
+    required: false
   guid:
     description: Snapshot or dataset GUID.
     type: str
+    required: false
   recursive:
     description: Create or delete snapshot recursively.
     type: bool
     default: false
+    required: false
   destroy_more_recent:
     description: Destroy newer snapshots during rollback.
     type: bool
     default: false
+    required: false
   periodic_id:
     description: Periodic snapshot schedule ID.
     type: int
+    required: false
   ids:
     description: List of periodic schedule IDs for bulk deletion.
     type: list
     elements: int
+    required: false
   prefix:
     description: Snapshot prefix for periodic schedules.
     type: str
+    required: false
   cron_expr:
     description: Cron expression for periodic schedules.
     type: str
+    required: false
   keep_last:
     description: Number of snapshots to retain for periodic schedules.
     type: int
+    required: false
   data:
     description: Additional raw request fields.
     type: dict
+    required: false
+version_added: 1.0.0
+author:
+- Sylve Contributors (@mhahl)
+requirements:
+- python >= 3.10
+- PyYAML
+attributes:
+  check_mode:
+    description: Can run in check mode and return changed status prediction without modifying the target.
+    support: full
+  diff_mode:
+    description: Will return details on what has changed when in diff mode. This module does not report diffs.
+    support: none
+notes:
+- Supports C(check_mode).
+- 'C(state=present) is idempotent: the module only issues write requests when the desired state differs from the live object.'
+- Shares C(~/.config/sylve/config.yaml) contexts and C(SYLVE_*) environment variables with the C(sylve) CLI (see M(sylve.cloud.sylve_api)).
+seealso:
+- module: sylve.cloud.sylve_api
+  description: Execute any Sylve REST API endpoint directly.
+- name: sylve.cloud collection README
+  link: https://github.com/mhahl/sylve-ansible
+  description: Authentication, configuration, and inventory plugin usage.
 """
 
 EXAMPLES = r"""
@@ -68,13 +102,31 @@ EXAMPLES = r"""
     name: daily-01
     recursive: true
     state: present
+
+- name: Manage Sylve ZFS dataset snapshots and periodic snapshot schedules on a specific node using a named context
+  sylve.cloud.sylve_zfs_snapshot:
+    context: prod
+    node: node1.lan
+    dataset: zroot/appdata
+    name: daily-01
+    state: present
+  register: result
+
+- name: Show result
+  ansible.builtin.debug:
+    var: result
 """
 
-RETURN = r"""
+RETURN = r"""changed:
+  description: Whether the module made changes on the Sylve cluster.
+  returned: always
+  type: bool
+  sample: true
 snapshot:
   description: Snapshot or periodic schedule details.
   returned: always
   type: dict
+  sample: '{"name": "zroot/appdata@daily-01"}'
 """
 
 from ansible_collections.sylve.cloud.plugins.module_utils.sylve import SylveModule

@@ -1,195 +1,283 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# BSD-2-Clause
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import annotations
 
-DOCUMENTATION = r"""
----
+DOCUMENTATION = r"""---
 module: sylve_vm
 short_description: Manage Sylve Bhyve virtual machines
 description:
-  - Create, update, start, stop, shut down, reboot, migrate, or delete Bhyve virtual machines on Sylve.
-  - Supports creating VMs from scratch (C(POST /vm)) or deploying from a VM template (C(POST /vm/templates/{id}/vms)).
-  - Supports day-2 updates to name, description, CPU, RAM, VNC, PCI passthrough, and VM options.
+- Create, update, start, stop, shut down, reboot, migrate, or delete Bhyve virtual machines on Sylve.
+- Supports creating VMs from scratch (C(POST /vm)) or deploying from a VM template (C(POST /vm/templates/{id}/vms)).
+- Supports day-2 updates to name, description, CPU, RAM, VNC, PCI passthrough, and VM options.
 extends_documentation_fragment:
-  - sylve.cloud.sylve
+- sylve.cloud.sylve
 options:
   state:
     description: Desired VM state.
     type: str
     choices:
-      - present
-      - absent
-      - started
-      - stopped
-      - shutdown
-      - rebooted
-      - migrated
-      - domain_reinitialized
-      - registration_purged
+    - present
+    - absent
+    - started
+    - stopped
+    - shutdown
+    - rebooted
+    - migrated
+    - domain_reinitialized
+    - registration_purged
     default: present
+    required: false
   name:
     description: VM name.
     type: str
+    required: false
   rid:
     description: Numeric VM RID (1-9999).
     type: int
+    required: false
   new_name:
     description: New name when renaming an existing VM.
     type: str
+    required: false
   description:
     description: VM description.
     type: str
+    required: false
   template:
     description: Template ID or name when deploying a VM from a template.
     type: str
+    required: false
   template_options:
     description: Additional payload options for template deployment (e.g. C(mode), C(startRid), C(count), C(namePrefix), C(storagePools)).
     type: dict
+    required: false
   cpu_sockets:
     description: Number of CPU sockets.
     type: int
+    required: false
   cpu_cores:
     description: Number of CPU cores per socket.
     type: int
-    aliases: [cores, cpu]
+    aliases:
+    - cores
+    - cpu
+    required: false
   cpu_threads:
     description: Number of threads per core.
     type: int
+    required: false
   cpu_pinning:
     description: CPU pinning list.
     type: list
     elements: raw
+    required: false
   ram:
     description: Memory size (integer bytes or human-readable like C(2G), C(512M)).
     type: raw
-    aliases: [memory]
+    aliases:
+    - memory
+    required: false
   storage_type:
     description: Primary disk storage type for VM creation.
     type: str
-    choices: [zvol, raw, image, filesystem, none]
+    choices:
+    - zvol
+    - raw
+    - image
+    - filesystem
+    - none
+    required: false
   storage_pool:
     description: ZFS pool name for primary disk.
     type: str
-    aliases: [pool]
+    aliases:
+    - pool
+    required: false
   storage_size:
     description: Primary disk size (integer bytes or human-readable like C(20G)).
     type: raw
-    aliases: [disk_size]
+    aliases:
+    - disk_size
+    required: false
   storage_emulation_type:
     description: Primary disk emulation type.
     type: str
-    choices: [virtio-blk, virtio-9p, ahci-hd, ahci-cd, nvme]
+    choices:
+    - virtio-blk
+    - virtio-9p
+    - ahci-hd
+    - ahci-cd
+    - nvme
+    required: false
   iso:
     description: ISO/image UUID or download name.
     type: str
+    required: false
   switch_name:
     description: Network switch name.
     type: str
-    aliases: [switch]
+    aliases:
+    - switch
+    required: false
   switch_emulation_type:
     description: Network emulation type (e.g. C(virtio-net), C(e1000)).
     type: str
+    required: false
   mac_id:
     description: MAC object ID.
     type: int
+    required: false
   vnc_enabled:
     description: Enable VNC console.
     type: bool
+    required: false
   vnc_bind:
     description: VNC bind address.
     type: str
+    required: false
   vnc_port:
     description: VNC port.
     type: int
+    required: false
   vnc_password:
     description: VNC password.
     type: str
+    required: false
   vnc_resolution:
     description: VNC resolution (e.g. C(1024x768)).
     type: str
+    required: false
   vnc_wait:
     description: Wait for VNC connection before booting.
     type: bool
+    required: false
   pci_devices:
     description: List of PCI passthrough device IDs.
     type: list
     elements: int
+    required: false
   cloud_init:
     description: Enable cloud-init.
     type: bool
+    required: false
   cloud_init_data:
     description: Cloud-init user-data YAML string.
     type: str
+    required: false
   cloud_init_meta_data:
     description: Cloud-init meta-data YAML string.
     type: str
+    required: false
   cloud_init_network_config:
     description: Cloud-init network-config YAML string.
     type: str
+    required: false
   boot_rom:
     description: Boot ROM (C(uefi), C(uboot), C(none)).
     type: str
+    required: false
   time_offset:
     description: Clock offset (C(utc) or C(localtime)).
     type: str
+    required: false
   start_at_boot:
     description: Start VM at host boot.
     type: bool
+    required: false
   start_order:
     description: Boot order priority.
     type: int
+    required: false
   serial:
     description: Enable serial console.
     type: bool
+    required: false
   tpm_emulation:
     description: Enable TPM emulation.
     type: bool
+    required: false
   qemu_guest_agent:
     description: Enable QEMU Guest Agent.
     type: bool
+    required: false
   ignore_umsr:
     description: Ignore unknown MSR accesses.
     type: bool
+    required: false
   apic:
     description: Enable APIC.
     type: bool
+    required: false
   acpi:
     description: Enable ACPI.
     type: bool
+    required: false
   wol:
     description: Enable Wake-on-LAN.
     type: bool
+    required: false
   shutdown_wait_time:
     description: Graceful shutdown wait time in seconds.
     type: int
+    required: false
   extra_bhyve_options:
     description: Extra bhyve command-line options.
     type: list
     elements: str
+    required: false
   target_node:
     description: Target cluster node hostname or UUID when C(state=migrated).
     type: str
+    required: false
   delete_volumes:
     description: Delete attached ZFS volumes when C(state=absent).
     type: bool
     default: true
+    required: false
   delete_raw_disks:
     description: Delete attached RAW disk images when C(state=absent).
     type: bool
     default: true
+    required: false
   delete_macs:
     description: Delete associated MAC objects when C(state=absent).
     type: bool
     default: true
+    required: false
   force:
     description: Force deletion when C(state=absent).
     type: bool
     default: false
+    required: false
   extra_params:
     description: Additional raw request fields merged into the create payload.
     type: dict
+    required: false
+version_added: 1.0.0
+author:
+- Sylve Contributors (@mhahl)
+requirements:
+- python >= 3.10
+- PyYAML
+attributes:
+  check_mode:
+    description: Can run in check mode and return changed status prediction without modifying the target.
+    support: full
+  diff_mode:
+    description: Will return details on what has changed when in diff mode. This module does not report diffs.
+    support: none
+notes:
+- Supports C(check_mode).
+- 'C(state=present) is idempotent: the module only issues write requests when the desired state differs from the live object.'
+- Shares C(~/.config/sylve/config.yaml) contexts and C(SYLVE_*) environment variables with the C(sylve) CLI (see M(sylve.cloud.sylve_api)).
+seealso:
+- module: sylve.cloud.sylve_api
+  description: Execute any Sylve REST API endpoint directly.
+- name: sylve.cloud collection README
+  link: https://github.com/mhahl/sylve-ansible
+  description: Authentication, configuration, and inventory plugin usage.
 """
 
 EXAMPLES = r"""
@@ -204,17 +292,35 @@ EXAMPLES = r"""
     storage_size: 20G
     switch_name: lan0
     state: started
+
+- name: Manage Sylve Bhyve virtual machines on a specific node using a named context
+  sylve.cloud.sylve_vm:
+    context: prod
+    node: node1.lan
+    name: web-01
+    state: started
+  register: result
+
+- name: Show result
+  ansible.builtin.debug:
+    var: result
 """
 
-RETURN = r"""
+RETURN = r"""changed:
+  description: Whether the module made changes on the Sylve cluster.
+  returned: always
+  type: bool
+  sample: true
 vm:
   description: Virtual machine representation.
   returned: always
   type: dict
+  sample: '{"rid": 101, "name": "web-01", "state": "RUNNING"}'
 task:
-  description: Completed lifecycle task details when applicable.
-  returned: when a lifecycle task is executed
+  description: Completed lifecycle, migration, replication, or backup task details.
+  returned: when a task is executed and C(wait=true)
   type: dict
+  sample: '{"id": 42, "status": "completed"}'
 """
 
 from ansible_collections.sylve.cloud.plugins.module_utils.sylve import (

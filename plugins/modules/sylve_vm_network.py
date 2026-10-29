@@ -1,23 +1,25 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# BSD-2-Clause
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import annotations
 
-DOCUMENTATION = r"""
----
+DOCUMENTATION = r"""---
 module: sylve_vm_network
 short_description: Manage network interfaces attached to a Sylve Bhyve VM
 description:
-  - Attach, update, or detach network interfaces on a Bhyve VM.
+- Attach, update, or detach network interfaces on a Bhyve VM.
 extends_documentation_fragment:
-  - sylve.cloud.sylve
+- sylve.cloud.sylve
 options:
   state:
     description: Desired network attachment state.
     type: str
-    choices: [present, absent]
+    choices:
+    - present
+    - absent
     default: present
+    required: false
   vm:
     description: VM RID or name.
     type: str
@@ -25,19 +27,48 @@ options:
   network_id:
     description: VM network attachment ID.
     type: int
+    required: false
   switch_name:
     description: Switch name to attach.
     type: str
-    aliases: [switch]
+    aliases:
+    - switch
+    required: false
   emulation:
     description: NIC emulation type (e.g. C(virtio-net), C(e1000)).
     type: str
+    required: false
   mac_id:
     description: MAC object ID.
     type: int
+    required: false
   data:
     description: Additional raw request fields.
     type: dict
+    required: false
+version_added: 1.0.0
+author:
+- Sylve Contributors (@mhahl)
+requirements:
+- python >= 3.10
+- PyYAML
+attributes:
+  check_mode:
+    description: Can run in check mode and return changed status prediction without modifying the target.
+    support: full
+  diff_mode:
+    description: Will return details on what has changed when in diff mode. This module does not report diffs.
+    support: none
+notes:
+- Supports C(check_mode).
+- 'C(state=present) is idempotent: the module only issues write requests when the desired state differs from the live object.'
+- Shares C(~/.config/sylve/config.yaml) contexts and C(SYLVE_*) environment variables with the C(sylve) CLI (see M(sylve.cloud.sylve_api)).
+seealso:
+- module: sylve.cloud.sylve_api
+  description: Execute any Sylve REST API endpoint directly.
+- name: sylve.cloud collection README
+  link: https://github.com/mhahl/sylve-ansible
+  description: Authentication, configuration, and inventory plugin usage.
 """
 
 EXAMPLES = r"""
@@ -47,13 +78,31 @@ EXAMPLES = r"""
     switch_name: lan0
     emulation: virtio-net
     state: present
+
+- name: Manage network interfaces attached to a Sylve Bhyve VM on a specific node using a named context
+  sylve.cloud.sylve_vm_network:
+    context: prod
+    node: node1.lan
+    vm: web-01
+    switch_name: lan0
+    state: present
+  register: result
+
+- name: Show result
+  ansible.builtin.debug:
+    var: result
 """
 
-RETURN = r"""
+RETURN = r"""changed:
+  description: Whether the module made changes on the Sylve cluster.
+  returned: always
+  type: bool
+  sample: true
 network:
   description: VM network attachment details.
   returned: always
   type: dict
+  sample: '{"id": 1, "switchName": "lan0"}'
 """
 
 from ansible_collections.sylve.cloud.plugins.module_utils.sylve import SylveModule

@@ -1,0 +1,54 @@
+---
+# Test playbook: create an example standard network switch on a Sylve node
+# using sylve.cloud.sylve_switch.
+#
+# A standard switch requires at least one member port (the bridge MAC is
+# derived from it). test_switch_port defaults to bxe2, which currently has
+# no IP addresses and is not a member of any switch. Override it (or set
+# test_switch_cleanup=false to inspect before deleting) if your node differs:
+#   ansible-playbook tests/integration/create_test_switch.yml -e test_switch_port=bxe3
+#
+# Run (dry run first):
+#   ansible-playbook tests/integration/create_test_switch.yml --check
+#   ansible-playbook tests/integration/create_test_switch.yml
+- name: Create an example network switch on Sylve
+  hosts: localhost
+  connection: local
+  gather_facts: false
+
+  vars:
+    sylve_context: "{{ lookup('env', 'SYLVE_CONTEXT') | default('prod', true) }}"
+    sylve_node: "{{ lookup('env', 'SYLVE_NODE') | default('node1.lan', true) }}"
+    test_switch_name: test-switch-01
+    test_switch_port: bxe2
+    test_switch_cleanup: true
+
+  tasks:
+    - name: Create private example switch
+      sylve.cloud.sylve_switch:
+        context: "{{ sylve_context }}"
+        node: "{{ sylve_node }}"
+        name: "{{ test_switch_name }}"
+        type: standard
+        ports:
+          - "{{ test_switch_port }}"
+        bridge_mac:
+          mode: port
+          port: "{{ test_switch_port }}"
+        private: true
+        mtu: 1500
+        state: present
+      register: switch_result
+
+    - name: Show created switch
+      ansible.builtin.debug:
+        var: switch_result.switch
+
+    - name: Delete example switch (cleanup)
+      sylve.cloud.sylve_switch:
+        context: "{{ sylve_context }}"
+        node: "{{ sylve_node }}"
+        name: "{{ test_switch_name }}"
+        type: standard
+        state: absent
+      when: test_switch_cleanup | bool

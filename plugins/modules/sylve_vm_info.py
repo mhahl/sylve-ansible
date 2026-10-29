@@ -1,71 +1,114 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# BSD-2-Clause
+# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
 
 from __future__ import annotations
 
-DOCUMENTATION = r"""
----
+DOCUMENTATION = r"""---
 module: sylve_vm_info
 short_description: Gather information about Sylve Bhyve VMs, templates, snapshots, stats, and logs
 description:
-  - Query Bhyve virtual machines, simple summaries, libvirt domain XML, QEMU guest-agent data, console logs, snapshots, templates, and RRD stats.
+- Query Bhyve virtual machines, simple summaries, libvirt domain XML, QEMU guest-agent data, console logs, snapshots, templates,
+  and RRD stats.
 extends_documentation_fragment:
-  - sylve.cloud.sylve
+- sylve.cloud.sylve
 options:
   vm:
     description: Optional VM RID or name to query a single VM.
     type: str
+    required: false
   simple:
     description: Use C(/vm/simple) instead of full C(/vm) details.
     type: bool
     default: false
+    required: false
   include_domain:
     description: Include libvirt domain XML (C(/vm/{rid}/domain)) when querying a single VM.
     type: bool
     default: false
+    required: false
   include_guest_agent:
     description: Include QEMU guest agent info (C(/vm/{rid}/guest-agent)) when querying a single VM.
     type: bool
     default: false
+    required: false
   include_logs:
     description: Include console logs (C(/vm/{rid}/logs)) when querying a single VM.
     type: bool
     default: false
+    required: false
   include_snapshots:
     description: Include VM snapshots (C(/vm/{rid}/snapshots)) when querying a single VM.
     type: bool
     default: false
+    required: false
   include_stats:
     description: Include VM stats (C(/vm/{rid}/stats) or C(/vm/{rid}/stats/{step})).
     type: bool
     default: false
+    required: false
   stats_step:
     description: Optional step interval for C(/vm/{rid}/stats/{step}).
     type: str
+    required: false
   include_templates:
     description: Also list VM templates across the cluster/node (C(/vm/templates)).
     type: bool
     default: false
+    required: false
+version_added: 1.0.0
+author:
+- Sylve Contributors (@mhahl)
+requirements:
+- python >= 3.10
+- PyYAML
+attributes:
+  check_mode:
+    description: Can run in check mode and return changed status prediction without modifying the target.
+    support: full
+  diff_mode:
+    description: Will return details on what has changed when in diff mode. This module does not report diffs.
+    support: none
+notes:
+- Supports C(check_mode).
+- 'C(state=present) is idempotent: the module only issues write requests when the desired state differs from the live object.'
+- Shares C(~/.config/sylve/config.yaml) contexts and C(SYLVE_*) environment variables with the C(sylve) CLI (see M(sylve.cloud.sylve_api)).
+seealso:
+- module: sylve.cloud.sylve_api
+  description: Execute any Sylve REST API endpoint directly.
+- name: sylve.cloud collection README
+  link: https://github.com/mhahl/sylve-ansible
+  description: Authentication, configuration, and inventory plugin usage.
 """
 
 EXAMPLES = r"""
 - name: List all VMs across the cluster
   sylve.cloud.sylve_vm_info:
   register: vm_info
+
+- name: Gather information about Sylve Bhyve VMs, templates, snapshots, stats, and logs on a specific node using a named context
+  sylve.cloud.sylve_vm_info:
+    context: prod
+    node: node1.lan
+    simple: true
+    include_templates: true
+  register: result
+
+- name: Show result
+  ansible.builtin.debug:
+    var: result
 """
 
-RETURN = r"""
+RETURN = r"""changed:
+  description: Whether the module made changes on the Sylve cluster.
+  returned: always
+  type: bool
+  sample: true
 vms:
   description: List of matching virtual machines.
   returned: always
   type: list
-  elements: dict
-templates:
-  description: List of VM templates when C(include_templates=true).
-  returned: when requested
-  type: list
-  elements: dict
+  sample: '[{"rid": 101, "name": "web-01", "state": "RUNNING"}]'
 """
 
 from ansible_collections.sylve.cloud.plugins.module_utils.sylve import SylveModule
