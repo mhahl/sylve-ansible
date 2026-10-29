@@ -2,4 +2,4 @@
 # antsibull-changelog configuration. See:
 # https://ansible.readthedocs.io/projects/antsibull-changelog/
 changelog_filename_template: CHANGELOG.rst
-changes_format: yaml
+changes_format: combined
