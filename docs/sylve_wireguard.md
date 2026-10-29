@@ -5,7 +5,7 @@ _Manage Sylve WireGuard VPN server, server peers, and outbound clients_
 Initialize, update, enable/disable, or delete the WireGuard server, server peers, and outbound WireGuard clients.
 
 - **Collection:** `sylve.cloud` (FQCN `sylve.cloud.sylve_wireguard`)
-- **Added in:** `sylve.cloud 1.0.0`
+- **Added in:** `sylve.cloud 0.3.1`
 - **Author:** Sylve Contributors (@mhahl)
 - **Requirements:** `python >= 3.10`, `PyYAML`
 - **Check mode:** supported (`full`)

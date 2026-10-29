@@ -5,7 +5,7 @@ _Manage Sylve notification transports, alert rules, and active notifications_
 List, create, update, bulk-update, test, or delete notification transports and rules, or count/dismiss active notifications.
 
 - **Collection:** `sylve.cloud` (FQCN `sylve.cloud.sylve_notification`)
-- **Added in:** `sylve.cloud 1.0.0`
+- **Added in:** `sylve.cloud 0.3.1`
 - **Author:** Sylve Contributors (@mhahl)
 - **Requirements:** `python >= 3.10`, `PyYAML`
 - **Check mode:** supported (`full`)

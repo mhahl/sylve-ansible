@@ -5,7 +5,7 @@ _Manage Sylve Bhyve VM templates_
 Capture a shut-off VM as a reusable template, deploy VMs from a template, or delete a VM template.
 
 - **Collection:** `sylve.cloud` (FQCN `sylve.cloud.sylve_vm_template`)
-- **Added in:** `sylve.cloud 1.0.0`
+- **Added in:** `sylve.cloud 0.3.1`
 - **Author:** Sylve Contributors (@mhahl)
 - **Requirements:** `python >= 3.10`, `PyYAML`
 - **Check mode:** supported (`full`)

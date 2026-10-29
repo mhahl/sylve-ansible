@@ -1,0 +1,21 @@
+release_summary: >
+  Initial release of the sylve.cloud collection, versioned to match the
+  Sylve 0.3.1 API. Manages Bhyve VMs, FreeBSD jails, networking, ZFS,
+  replication, backups, and cluster operations, and ships a dynamic
+  inventory plugin. Shares ~/.config/sylve/config.yaml contexts and
+  SYLVE_* environment variables with sylve-cli.
+minor_changes:
+  - sylve_vm - auto-select the first free VNC port (5900-5999) and generate
+    a random VNC password when VNC is enabled and neither is supplied
+    (mirrors sylve-cli). The generated password is returned as vnc_password.
+  - sylve_switch - new bridge_mac option (mode/port/mac_object_id) for the
+    API-required bridge MAC source on standard switches.
+bugfixes:
+  - sylve_cloud_init_template - send the API's user/meta/networkConfig fields
+    instead of userData/metaData, require network_config, and drop the
+    unsupported description option.
+  - sylve_switch - fix idempotency comparison for ports and numeric fields.
+known_issues:
+  - The sylve_vm switch_emulation_type default (virtio-net) is rejected by
+    some libvirt/bhyve drivers; pass e1000 explicitly if creation fails with
+    "driver does not support net model".

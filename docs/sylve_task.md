@@ -5,7 +5,7 @@ _Query, wait for, validate, or cancel Sylve lifecycle and migration tasks_
 Query active or recent lifecycle tasks, wait for a task by ID, validate guest migration preflight, or cancel an active migration task.
 
 - **Collection:** `sylve.cloud` (FQCN `sylve.cloud.sylve_task`)
-- **Added in:** `sylve.cloud 1.0.0`
+- **Added in:** `sylve.cloud 0.3.1`
 - **Author:** Sylve Contributors (@mhahl)
 - **Requirements:** `python >= 3.10`, `PyYAML`
 - **Check mode:** supported (`full`)

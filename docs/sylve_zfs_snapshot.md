@@ -5,7 +5,7 @@ _Manage Sylve ZFS dataset snapshots and periodic snapshot schedules_
 Create, roll back to, or delete ZFS dataset snapshots, or manage periodic snapshot schedules.
 
 - **Collection:** `sylve.cloud` (FQCN `sylve.cloud.sylve_zfs_snapshot`)
-- **Added in:** `sylve.cloud 1.0.0`
+- **Added in:** `sylve.cloud 0.3.1`
 - **Author:** Sylve Contributors (@mhahl)
 - **Requirements:** `python >= 3.10`, `PyYAML`
 - **Check mode:** supported (`full`)

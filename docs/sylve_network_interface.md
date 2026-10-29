@@ -5,7 +5,7 @@ _Manage Sylve host Layer-3 network interfaces, global network config, and pendin
 Configure or remove host Layer-3 interface IP settings (C(/network/interface/{name}/l3)), reapply L3 settings, confirm or revert pending host IP transactions, or update global network settings (C(/network/global-config)).
 
 - **Collection:** `sylve.cloud` (FQCN `sylve.cloud.sylve_network_interface`)
-- **Added in:** `sylve.cloud 1.0.0`
+- **Added in:** `sylve.cloud 0.3.1`
 - **Author:** Sylve Contributors (@mhahl)
 - **Requirements:** `python >= 3.10`, `PyYAML`
 - **Check mode:** supported (`full`)

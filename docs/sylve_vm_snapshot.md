@@ -5,7 +5,7 @@ _Manage ZFS snapshots for a Sylve Bhyve VM_
 Create, roll back to, or delete crash-consistent ZFS snapshots for a Bhyve virtual machine.
 
 - **Collection:** `sylve.cloud` (FQCN `sylve.cloud.sylve_vm_snapshot`)
-- **Added in:** `sylve.cloud 1.0.0`
+- **Added in:** `sylve.cloud 0.3.1`
 - **Author:** Sylve Contributors (@mhahl)
 - **Requirements:** `python >= 3.10`, `PyYAML`
 - **Check mode:** supported (`full`)

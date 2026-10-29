@@ -9,7 +9,7 @@ Supports creating VMs from scratch (C(POST /vm)) or deploying from a VM template
 Supports day-2 updates to name, description, CPU, RAM, VNC, PCI passthrough, and VM options.
 
 - **Collection:** `sylve.cloud` (FQCN `sylve.cloud.sylve_vm`)
-- **Added in:** `sylve.cloud 1.0.0`
+- **Added in:** `sylve.cloud 0.3.1`
 - **Author:** Sylve Contributors (@mhahl)
 - **Requirements:** `python >= 3.10`, `PyYAML`
 - **Check mode:** supported (`full`)
@@ -40,8 +40,8 @@ Supports day-2 updates to name, description, CPU, RAM, VNC, PCI passthrough, and
 | `mac_id` | `int` | no | — | — | MAC object ID. |
 | `vnc_enabled` | `bool` | no | — | — | Enable VNC console. |
 | `vnc_bind` | `str` | no | — | — | VNC bind address. |
-| `vnc_port` | `int` | no | — | — | VNC port. |
-| `vnc_password` | `str` | no | — | — | VNC password. |
+| `vnc_port` | `int` | no | — | — | VNC port. Auto-selected as the first free port in 5900-5999 on the target node when omitted. |
+| `vnc_password` | `str` | no | — | — | VNC password. A random 12-character password is generated when VNC is enabled and this is omitted; it is returned as C(vnc_password) in the result. |
 | `vnc_resolution` | `str` | no | — | — | VNC resolution (e.g. C(1024x768)). |
 | `vnc_wait` | `bool` | no | — | — | Wait for VNC connection before booting. |
 | `pci_devices` | `list` | no | — | — | List of PCI passthrough device IDs. |
@@ -112,6 +112,7 @@ All modules also accept the shared [sylve connection options](index.md#authentic
 | `changed` | `bool` | always | Whether the module made changes on the Sylve cluster. | `True` |
 | `vm` | `dict` | always | Virtual machine representation. | `{"rid": 101, "name": "web-01", "state": "RUNNING"}` |
 | `task` | `dict` | when a task is executed and C(wait=true) | Completed lifecycle, migration, replication, or backup task details. | `{"id": 42, "status": "completed"}` |
+| `vnc_password` | `str` | when a VNC password is auto-generated | Auto-generated VNC password. Only returned when VNC is enabled, no password was supplied, and the module generated one. | `aB3dE5gH7jK9` |
 
 ## See also
 

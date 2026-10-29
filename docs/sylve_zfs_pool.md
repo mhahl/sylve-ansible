@@ -5,7 +5,7 @@ _Manage Sylve ZFS storage pools, devices, scrubs, and scrub schedules_
 Create, edit, delete, scrub, detach/replace devices on ZFS pools, or manage ZFS pool scrub schedules.
 
 - **Collection:** `sylve.cloud` (FQCN `sylve.cloud.sylve_zfs_pool`)
-- **Added in:** `sylve.cloud 1.0.0`
+- **Added in:** `sylve.cloud 0.3.1`
 - **Author:** Sylve Contributors (@mhahl)
 - **Requirements:** `python >= 3.10`, `PyYAML`
 - **Check mode:** supported (`full`)

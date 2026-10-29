@@ -5,7 +5,7 @@ _Manage Sylve Dynamic DNS entries_
 List, create, update, synchronize, or delete Dynamic DNS entries on Sylve.
 
 - **Collection:** `sylve.cloud` (FQCN `sylve.cloud.sylve_ddns`)
-- **Added in:** `sylve.cloud 1.0.0`
+- **Added in:** `sylve.cloud 0.3.1`
 - **Author:** Sylve Contributors (@mhahl)
 - **Requirements:** `python >= 3.10`, `PyYAML`
 - **Check mode:** supported (`full`)

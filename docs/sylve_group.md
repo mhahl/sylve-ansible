@@ -5,7 +5,7 @@ _Manage Sylve authentication groups and group membership_
 List, create, or delete authentication groups, and replace group membership.
 
 - **Collection:** `sylve.cloud` (FQCN `sylve.cloud.sylve_group`)
-- **Added in:** `sylve.cloud 1.0.0`
+- **Added in:** `sylve.cloud 0.3.1`
 - **Author:** Sylve Contributors (@mhahl)
 - **Requirements:** `python >= 3.10`, `PyYAML`
 - **Check mode:** supported (`full`)

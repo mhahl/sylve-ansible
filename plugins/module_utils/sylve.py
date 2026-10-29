@@ -1187,4 +1187,3 @@ class SylveModule:
         finally:
             if self._client is not None:
                 self._client.close()
-

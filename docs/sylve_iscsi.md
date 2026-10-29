@@ -5,7 +5,7 @@ _Manage Sylve iSCSI global config, initiators, targets, LUNs, and portals_
 Query or configure iSCSI global settings, initiators (and connect), targets, target LUNs, target portals, status, and target sessions.
 
 - **Collection:** `sylve.cloud` (FQCN `sylve.cloud.sylve_iscsi`)
-- **Added in:** `sylve.cloud 1.0.0`
+- **Added in:** `sylve.cloud 0.3.1`
 - **Author:** Sylve Contributors (@mhahl)
 - **Requirements:** `python >= 3.10`, `PyYAML`
 - **Check mode:** supported (`full`)

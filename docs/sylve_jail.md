@@ -9,7 +9,7 @@ Supports creating jails from scratch (C(POST /jail)) or from a template (C(POST 
 Supports day-2 updates to name, description, CPU, RAM, resource limits, network inheritance, and jail options.
 
 - **Collection:** `sylve.cloud` (FQCN `sylve.cloud.sylve_jail`)
-- **Added in:** `sylve.cloud 1.0.0`
+- **Added in:** `sylve.cloud 0.3.1`
 - **Author:** Sylve Contributors (@mhahl)
 - **Requirements:** `python >= 3.10`, `PyYAML`
 - **Check mode:** supported (`full`)

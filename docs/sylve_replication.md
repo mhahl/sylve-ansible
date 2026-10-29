@@ -5,7 +5,7 @@ _Manage Sylve HA replication policies, manual runs, failovers, and replication e
 Create, update, delete, run, or fail over cluster HA replication policies, and query replication events.
 
 - **Collection:** `sylve.cloud` (FQCN `sylve.cloud.sylve_replication`)
-- **Added in:** `sylve.cloud 1.0.0`
+- **Added in:** `sylve.cloud 0.3.1`
 - **Author:** Sylve Contributors (@mhahl)
 - **Requirements:** `python >= 3.10`, `PyYAML`
 - **Check mode:** supported (`full`)

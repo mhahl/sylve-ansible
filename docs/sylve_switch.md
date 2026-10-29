@@ -5,7 +5,7 @@ _Manage Sylve standard and manual network switches_
 Create, update, delete, or synchronize standard and manual FreeBSD bridge network switches on Sylve.
 
 - **Collection:** `sylve.cloud` (FQCN `sylve.cloud.sylve_switch`)
-- **Added in:** `sylve.cloud 1.0.0`
+- **Added in:** `sylve.cloud 0.3.1`
 - **Author:** Sylve Contributors (@mhahl)
 - **Requirements:** `python >= 3.10`, `PyYAML`
 - **Check mode:** supported (`full`)

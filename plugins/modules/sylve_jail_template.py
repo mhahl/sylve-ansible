@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+# BSD-2-Clause
 
 from __future__ import annotations
 
@@ -37,7 +37,7 @@ options:
     description: Deployment payload when C(state=deployed).
     type: dict
     required: false
-version_added: 1.0.0
+version_added: 0.3.1
 author:
 - Sylve Contributors (@mhahl)
 requirements:

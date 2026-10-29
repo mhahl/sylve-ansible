@@ -5,7 +5,7 @@ _Manage Sylve Active Directory and Kerberos directory services_
 Configure Active Directory (check, enable/disable, join, leave, status), Kerberos realms (discover, CRUD), Kerberos keytabs (CRUD), Kerberos settings, and query directory principals.
 
 - **Collection:** `sylve.cloud` (FQCN `sylve.cloud.sylve_directory_service`)
-- **Added in:** `sylve.cloud 1.0.0`
+- **Added in:** `sylve.cloud 0.3.1`
 - **Author:** Sylve Contributors (@mhahl)
 - **Requirements:** `python >= 3.10`, `PyYAML`
 - **Check mode:** supported (`full`)

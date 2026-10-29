@@ -5,7 +5,7 @@ _Manage Sylve network and firewall alias objects_
 Create, update, delete, or bulk-delete network alias objects (Host, Network, Port, Mac).
 
 - **Collection:** `sylve.cloud` (FQCN `sylve.cloud.sylve_network_object`)
-- **Added in:** `sylve.cloud 1.0.0`
+- **Added in:** `sylve.cloud 0.3.1`
 - **Author:** Sylve Contributors (@mhahl)
 - **Requirements:** `python >= 3.10`, `PyYAML`
 - **Check mode:** supported (`full`)

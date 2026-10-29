@@ -5,7 +5,7 @@ _Manage Sylve mDNS configuration and records_
 Query or update mDNS settings and create, update, or delete mDNS service/host records.
 
 - **Collection:** `sylve.cloud` (FQCN `sylve.cloud.sylve_mdns`)
-- **Added in:** `sylve.cloud 1.0.0`
+- **Added in:** `sylve.cloud 0.3.1`
 - **Author:** Sylve Contributors (@mhahl)
 - **Requirements:** `python >= 3.10`, `PyYAML`
 - **Check mode:** supported (`full`)

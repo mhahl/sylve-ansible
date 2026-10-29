@@ -54,7 +54,7 @@ def test_parse_size() -> None:
     assert parse_size("2G") == 2 * 1024**3
     assert parse_size("512M") == 512 * 1024**2
     assert parse_size(1024) == 1024
-    with pytest.raises( Exception):
+    with pytest.raises(Exception):
         parse_size("invalid")
 
 

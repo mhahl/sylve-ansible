@@ -5,7 +5,7 @@ _Manage Sylve cluster backup targets, validation, datasets, and restores_
 Create, update, validate, delete, or restore from cluster backup targets, and inspect target datasets/metadata/readiness.
 
 - **Collection:** `sylve.cloud` (FQCN `sylve.cloud.sylve_backup_target`)
-- **Added in:** `sylve.cloud 1.0.0`
+- **Added in:** `sylve.cloud 0.3.1`
 - **Author:** Sylve Contributors (@mhahl)
 - **Requirements:** `python >= 3.10`, `PyYAML`
 - **Check mode:** supported (`full`)

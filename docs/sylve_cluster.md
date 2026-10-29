@@ -5,7 +5,7 @@ _Manage Sylve cluster formation, membership, resynchronization, and cluster note
 Initialize a cluster, join an existing cluster, accept a pending join, leave/reset a node, remove a peer node, resynchronize Raft state, sync intra-cluster health, or manage cluster-wide notes.
 
 - **Collection:** `sylve.cloud` (FQCN `sylve.cloud.sylve_cluster`)
-- **Added in:** `sylve.cloud 1.0.0`
+- **Added in:** `sylve.cloud 0.3.1`
 - **Author:** Sylve Contributors (@mhahl)
 - **Requirements:** `python >= 3.10`, `PyYAML`
 - **Check mode:** supported (`full`)

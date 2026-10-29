@@ -5,7 +5,7 @@ _Manage Sylve ZFS filesystems and volumes_
 Create, edit, flash, delete, or bulk-delete ZFS filesystems and volumes (zvols).
 
 - **Collection:** `sylve.cloud` (FQCN `sylve.cloud.sylve_zfs_dataset`)
-- **Added in:** `sylve.cloud 1.0.0`
+- **Added in:** `sylve.cloud 0.3.1`
 - **Author:** Sylve Contributors (@mhahl)
 - **Requirements:** `python >= 3.10`, `PyYAML`
 - **Check mode:** supported (`full`)

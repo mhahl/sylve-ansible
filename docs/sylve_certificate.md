@@ -5,7 +5,7 @@ _Manage Sylve TLS certificates, ACME renewals, activation, and archives_
 List, create, update, delete, activate, cancel activation, renew, retry, check domains, or download archives for TLS certificates.
 
 - **Collection:** `sylve.cloud` (FQCN `sylve.cloud.sylve_certificate`)
-- **Added in:** `sylve.cloud 1.0.0`
+- **Added in:** `sylve.cloud 0.3.1`
 - **Author:** Sylve Contributors (@mhahl)
 - **Requirements:** `python >= 3.10`, `PyYAML`
 - **Check mode:** supported (`full`)

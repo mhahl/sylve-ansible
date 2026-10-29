@@ -5,7 +5,7 @@ _Execute any Sylve Swagger HTTP API request directly_
 Universal module for invoking any Sylve REST API endpoint (GET, POST, PUT, PATCH, DELETE), including file uploads, binary downloads, and unauthenticated endpoints.
 
 - **Collection:** `sylve.cloud` (FQCN `sylve.cloud.sylve_api`)
-- **Added in:** `sylve.cloud 1.0.0`
+- **Added in:** `sylve.cloud 0.3.1`
 - **Author:** Sylve Contributors (@mhahl)
 - **Requirements:** `python >= 3.10`, `PyYAML`
 - **Check mode:** supported (`full`)

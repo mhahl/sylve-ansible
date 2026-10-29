@@ -5,7 +5,7 @@ _Manage Sylve scheduled backup jobs, runs, restores, snapshots, and events_
 Create, update, delete, run, or restore from cluster backup jobs, and query backup job snapshots and events.
 
 - **Collection:** `sylve.cloud` (FQCN `sylve.cloud.sylve_backup_job`)
-- **Added in:** `sylve.cloud 1.0.0`
+- **Added in:** `sylve.cloud 0.3.1`
 - **Author:** Sylve Contributors (@mhahl)
 - **Requirements:** `python >= 3.10`, `PyYAML`
 - **Check mode:** supported (`full`)

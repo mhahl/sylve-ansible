@@ -5,7 +5,7 @@ _Manage Sylve FreeBSD jail templates_
 Capture a jail as a template, deploy jails from a template, or delete a jail template.
 
 - **Collection:** `sylve.cloud` (FQCN `sylve.cloud.sylve_jail_template`)
-- **Added in:** `sylve.cloud 1.0.0`
+- **Added in:** `sylve.cloud 0.3.1`
 - **Author:** Sylve Contributors (@mhahl)
 - **Requirements:** `python >= 3.10`, `PyYAML`
 - **Check mode:** supported (`full`)

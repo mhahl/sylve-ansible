@@ -5,7 +5,7 @@ _Manage Sylve Samba global configuration, shares, and audit logs_
 Query or update Samba global configuration, create/update/enable/disable/delete Samba shares, or fetch Samba audit logs.
 
 - **Collection:** `sylve.cloud` (FQCN `sylve.cloud.sylve_samba`)
-- **Added in:** `sylve.cloud 1.0.0`
+- **Added in:** `sylve.cloud 0.3.1`
 - **Author:** Sylve Contributors (@mhahl)
 - **Requirements:** `python >= 3.10`, `PyYAML`
 - **Check mode:** supported (`full`)

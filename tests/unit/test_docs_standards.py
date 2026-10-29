@@ -55,7 +55,7 @@ def test_docs_follow_ansible_conventions() -> None:
         blocks = _blocks(mf)
         doc = yaml.safe_load(blocks["DOCUMENTATION"])
         assert doc["module"] == mf.stem, mf.name
-        assert doc["version_added"] == "1.0.0", mf.name
+        assert doc["version_added"] == "0.3.1", mf.name
         assert isinstance(doc["author"], list) and doc["author"], mf.name
         assert doc["attributes"]["check_mode"]["support"] == "full", mf.name
         assert doc["notes"], mf.name

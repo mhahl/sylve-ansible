@@ -5,7 +5,7 @@ _Manage Sylve cluster node maintenance drain, reboot, and host notes_
 Drain a cluster node for maintenance (failing over HA policies and migrating/stopping VMs and Jails), initiate a node reboot, or manage per-host notes.
 
 - **Collection:** `sylve.cloud` (FQCN `sylve.cloud.sylve_node`)
-- **Added in:** `sylve.cloud 1.0.0`
+- **Added in:** `sylve.cloud 0.3.1`
 - **Author:** Sylve Contributors (@mhahl)
 - **Requirements:** `python >= 3.10`, `PyYAML`
 - **Check mode:** supported (`full`)

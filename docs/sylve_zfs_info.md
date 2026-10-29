@@ -5,7 +5,7 @@ _Gather information about Sylve ZFS pools, datasets, snapshots, scrubs, and dash
 Query ZFS pools, pool status, scrub runs, scrub schedules, disk usage, datasets, paginated datasets, periodic snapshot schedules, and dashboard metrics.
 
 - **Collection:** `sylve.cloud` (FQCN `sylve.cloud.sylve_zfs_info`)
-- **Added in:** `sylve.cloud 1.0.0`
+- **Added in:** `sylve.cloud 0.3.1`
 - **Author:** Sylve Contributors (@mhahl)
 - **Requirements:** `python >= 3.10`, `PyYAML`
 - **Check mode:** supported (`full`)

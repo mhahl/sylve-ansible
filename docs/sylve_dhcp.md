@@ -5,7 +5,7 @@ _Manage Sylve DHCP service configuration, IP ranges, and leases_
 Configure DHCP global settings, IPv4/IPv6 ranges, static leases, or delete dynamic leases.
 
 - **Collection:** `sylve.cloud` (FQCN `sylve.cloud.sylve_dhcp`)
-- **Added in:** `sylve.cloud 1.0.0`
+- **Added in:** `sylve.cloud 0.3.1`
 - **Author:** Sylve Contributors (@mhahl)
 - **Requirements:** `python >= 3.10`, `PyYAML`
 - **Check mode:** supported (`full`)

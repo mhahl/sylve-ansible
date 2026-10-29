@@ -5,7 +5,7 @@ _Manage Sylve PF firewall traffic rules, NAT rules, and advanced settings_
 Create, update, reorder, delete, or bulk-delete PF firewall traffic and NAT rules, or update/preview advanced PF settings.
 
 - **Collection:** `sylve.cloud` (FQCN `sylve.cloud.sylve_firewall`)
-- **Added in:** `sylve.cloud 1.0.0`
+- **Added in:** `sylve.cloud 0.3.1`
 - **Author:** Sylve Contributors (@mhahl)
 - **Requirements:** `python >= 3.10`, `PyYAML`
 - **Check mode:** supported (`full`)

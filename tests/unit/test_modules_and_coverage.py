@@ -10,6 +10,7 @@ import pytest
 
 from ansible_collections.sylve.cloud.plugins.module_utils.sylve import (
     ContextConfig,
+    ResourceNotFoundError,
     SylveClient,
 )
 from ansible_collections.sylve.cloud.plugins.modules import (
@@ -200,6 +201,41 @@ def test_zfs_pool_scrub_and_generic_api(monkeypatch: pytest.MonkeyPatch) -> None
 
 
 @pytest.mark.skipif(not SWAGGER_PATH.exists(), reason="swagger.json not present")
+def test_vm_create_generates_vnc_password_and_port(monkeypatch: pytest.MonkeyPatch) -> None:
+    class _CreateMockClient(_MockClient):
+        def __init__(self) -> None:
+            super().__init__()
+            self.posted: dict[str, Any] = {}
+
+        def resolve_vm(self, ident: Any, node: str | None = None) -> tuple[int, str, dict]:
+            raise ResourceNotFoundError(f"VM '{ident}' not found.")
+
+        def get(self, path: str, **kwargs: Any) -> Any:
+            if path == "/vm":
+                return [{"rid": 101, "vncEnabled": True, "vncPort": 5900}]
+            if path.startswith("/vm/"):
+                return {"rid": 901, "name": "new-01", "state": 5}
+            return {}
+
+        def post(self, path: str, **kwargs: Any) -> Any:
+            self.calls.append(("POST", path, kwargs))
+            self.posted = dict(kwargs.get("json_body") or {})
+            return {"rid": 901}
+
+    client = _CreateMockClient()
+    res = _run_module(
+        monkeypatch,
+        sylve_vm.SylveVMModule,
+        {"name": "new-01", "state": "present"},
+        client,
+    )
+    assert res["changed"] is True
+    assert client.posted["vncPort"] == 5901
+    password = client.posted["vncPassword"]
+    assert isinstance(password, str) and len(password) == 12 and password.isalnum()
+    assert res["vnc_password"] == password
+
+
 def test_all_swagger_paths_covered() -> None:
     spec = json.loads(SWAGGER_PATH.read_text(encoding="utf-8"))
     swagger_paths = set(spec.get("paths", {}).keys())
@@ -264,4 +300,3 @@ def test_all_modules_and_inventory_import_and_docs_valid() -> None:
     inv_mod = importlib.import_module("ansible_collections.sylve.cloud.plugins.inventory.sylve")
     inv_doc = yaml.safe_load(inv_mod.DOCUMENTATION)
     assert inv_doc.get("name") == "sylve"
-

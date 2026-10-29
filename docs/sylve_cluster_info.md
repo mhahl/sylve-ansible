@@ -5,7 +5,7 @@ _Gather information about Sylve cluster status, nodes, telemetry, and audit logs
 Query cluster status, join key, nodes, cluster resources, cluster notes, node telemetry (CPU, RAM, swap, history), and audit logs.
 
 - **Collection:** `sylve.cloud` (FQCN `sylve.cloud.sylve_cluster_info`)
-- **Added in:** `sylve.cloud 1.0.0`
+- **Added in:** `sylve.cloud 0.3.1`
 - **Author:** Sylve Contributors (@mhahl)
 - **Requirements:** `python >= 3.10`, `PyYAML`
 - **Check mode:** supported (`full`)

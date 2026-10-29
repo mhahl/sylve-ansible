@@ -5,7 +5,7 @@ _Manage Sylve local, PAM, and imported Unix users and user passkeys_
 Create, import, update, or delete local, PAM, and Unix users, query user capabilities/importable users/next UID, and manage user passkeys.
 
 - **Collection:** `sylve.cloud` (FQCN `sylve.cloud.sylve_user`)
-- **Added in:** `sylve.cloud 1.0.0`
+- **Added in:** `sylve.cloud 0.3.1`
 - **Author:** Sylve Contributors (@mhahl)
 - **Requirements:** `python >= 3.10`, `PyYAML`
 - **Check mode:** supported (`full`)

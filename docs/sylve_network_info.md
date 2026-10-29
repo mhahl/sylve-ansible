@@ -5,7 +5,7 @@ _Gather information about Sylve network interfaces, switches, routes, DHCP, fire
 Query network interfaces, L3 configurations, pending L3 changes, global network config, switches, switch sync status, static routes, network objects, DHCP config/ranges/leases, firewall rules/counters/rendered/live logs/route suggestions, and WireGuard.
 
 - **Collection:** `sylve.cloud` (FQCN `sylve.cloud.sylve_network_info`)
-- **Added in:** `sylve.cloud 1.0.0`
+- **Added in:** `sylve.cloud 0.3.1`
 - **Author:** Sylve Contributors (@mhahl)
 - **Requirements:** `python >= 3.10`, `PyYAML`
 - **Check mode:** supported (`full`)

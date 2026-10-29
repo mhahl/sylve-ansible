@@ -5,7 +5,7 @@ _Manage Sylve ISO and disk-image downloads, local uploads, and signed URLs_
 Start URL/magnet downloads, upload local ISO/image files to downloader storage, update metadata, mint signed download URLs, download completed files locally, query storage paths, or delete downloads.
 
 - **Collection:** `sylve.cloud` (FQCN `sylve.cloud.sylve_download`)
-- **Added in:** `sylve.cloud 1.0.0`
+- **Added in:** `sylve.cloud 0.3.1`
 - **Author:** Sylve Contributors (@mhahl)
 - **Requirements:** `python >= 3.10`, `PyYAML`
 - **Check mode:** supported (`full`)

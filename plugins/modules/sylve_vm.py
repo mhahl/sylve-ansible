@@ -1,6 +1,6 @@
 #!/usr/bin/python
 # -*- coding: utf-8 -*-
-# GNU General Public License v3.0+ (see COPYING or https://www.gnu.org/licenses/gpl-3.0.txt)
+# BSD-2-Clause
 
 from __future__ import annotations
 
@@ -138,11 +138,12 @@ options:
     type: str
     required: false
   vnc_port:
-    description: VNC port.
+    description: VNC port. Auto-selected as the first free port in 5900-5999 on the target node when omitted.
     type: int
     required: false
   vnc_password:
-    description: VNC password.
+    description: VNC password. A random 12-character password is generated when VNC
+      is enabled and this is omitted; it is returned as C(vnc_password) in the result.
     type: str
     required: false
   vnc_resolution:
@@ -255,7 +256,7 @@ options:
     description: Additional raw request fields merged into the create payload.
     type: dict
     required: false
-version_added: 1.0.0
+version_added: 0.3.1
 author:
 - Sylve Contributors (@mhahl)
 requirements:
@@ -321,14 +322,52 @@ task:
   returned: when a task is executed and C(wait=true)
   type: dict
   sample: '{"id": 42, "status": "completed"}'
+vnc_password:
+  description: Auto-generated VNC password. Only returned when VNC is enabled, no password was supplied, and the module generated one.
+  returned: when a VNC password is auto-generated
+  type: str
+  sample: aB3dE5gH7jK9
 """
+
+import secrets
+import string
 
 from ansible_collections.sylve.cloud.plugins.module_utils.sylve import (
     ResourceNotFoundError,
+    SylveClient,
+    SylveError,
     SylveModule,
     format_vm_state,
     parse_size,
 )
+
+
+def _generate_vnc_password(length: int = 12) -> str:
+    """Generate a random alphanumeric VNC password (mirrors sylve-cli)."""
+    alphabet = string.ascii_letters + string.digits
+    return "".join(secrets.choice(alphabet) for _ in range(length))
+
+
+def _next_free_vnc_port(client: SylveClient, host: str | None) -> int:
+    """Return the first free VNC port in 5900-5999 on the target node (mirrors sylve-cli)."""
+    used: set[int] = set()
+    try:
+        vms = client.get("/vm", node=host)
+    except SylveError:
+        vms = []
+    for vm in vms if isinstance(vms, list) else []:
+        if not isinstance(vm, dict):
+            continue
+        port = vm.get("vncPort", vm.get("vnc_port"))
+        try:
+            if port is not None:
+                used.add(int(port))
+        except (TypeError, ValueError):
+            continue
+    for port in range(5900, 6000):
+        if port not in used:
+            return port
+    raise SylveError("No free VNC port found in the 5900-5999 range; pass vnc_port explicitly.")
 
 
 class SylveVMModule(SylveModule):
@@ -437,8 +476,8 @@ class SylveVMModule(SylveModule):
             "timeOffset": p.get("time_offset") or "utc",
             "vncEnabled": True if p.get("vnc_enabled") is None else p["vnc_enabled"],
             "vncBind": p.get("vnc_bind") or "127.0.0.1",
-            "vncPort": p.get("vnc_port") or 5900,
-            "vncPassword": p.get("vnc_password") or "sylvevnc1234",
+            "vncPort": p.get("vnc_port"),
+            "vncPassword": p.get("vnc_password"),
             "vncResolution": p.get("vnc_resolution") or "1024x768",
             "vncWait": bool(p.get("vnc_wait", False)),
             "startAtBoot": bool(p.get("start_at_boot", False)),
@@ -477,6 +516,21 @@ class SylveVMModule(SylveModule):
         if p.get("extra_params"):
             payload.update(p["extra_params"])
         return payload
+
+    def _fill_vnc_defaults(self, payload: dict, host: str | None) -> bool:
+        """Auto-select a free VNC port and generate a VNC password when omitted.
+
+        Returns True when a password was generated (so it can be surfaced in
+        the result — the caller needs it, since it is not recoverable).
+        """
+        if not payload.get("vncEnabled"):
+            return False
+        if not payload.get("vncPort"):
+            payload["vncPort"] = _next_free_vnc_port(self.client, host)
+        if not payload.get("vncPassword"):
+            payload["vncPassword"] = _generate_vnc_password()
+            return True
+        return False
 
     def _update_existing_vm(self, rid: int, host: str | None, current: dict) -> bool:
         p = self.params
@@ -701,14 +755,12 @@ class SylveVMModule(SylveModule):
 
         changed = False
         task = None
+        generated_vnc_password: str | None = None
 
         if rid is None:
             if state in ("stopped", "shutdown", "rebooted", "migrated", "domain_reinitialized"):
                 self.fail_json(msg=f"VM not found for state={state}.")
             changed = True
-            if self.check_mode:
-                self.exit_json(changed=True, vm=self._build_create_payload())
-                return
             if self.params.get("template"):
                 tmpl_id = self.params["template"]
                 body = dict(self.params.get("template_options") or {})
@@ -717,11 +769,22 @@ class SylveVMModule(SylveModule):
                 if self.params.get("rid"):
                     body.setdefault("rid", self.params["rid"])
                 body.setdefault("mode", "single")
+                if self.check_mode:
+                    self.exit_json(changed=True, vm=body)
+                    return
                 resp = self.client.post(f"/vm/templates/{tmpl_id}/vms", json_body=body, node=host)
                 task = self.wait_task(resp, node=host)
                 rid, host, current = self._find_vm()
             else:
                 payload = self._build_create_payload()
+                if self._fill_vnc_defaults(payload, host):
+                    generated_vnc_password = str(payload["vncPassword"])
+                if self.check_mode:
+                    result: dict = {"changed": True, "vm": payload}
+                    if generated_vnc_password:
+                        result["vnc_password"] = generated_vnc_password
+                    self.exit_json(**result)
+                    return
                 resp = self.client.post("/vm", json_body=payload, node=host)
                 rid = int((resp or {}).get("rid") or payload["rid"])
                 current = self.client.get(f"/vm/{rid}", node=host) or payload
@@ -778,7 +841,10 @@ class SylveVMModule(SylveModule):
                     task = self.wait_task(resp, node=host)
                     current = self.client.get(f"/vm/{rid}", node=host) or current
 
-        self.exit_json(changed=changed, vm=current, task=task)
+        result_kwargs: dict = {"changed": changed, "vm": current, "task": task}
+        if generated_vnc_password:
+            result_kwargs["vnc_password"] = generated_vnc_password
+        self.exit_json(**result_kwargs)
 
 
 def main() -> None:

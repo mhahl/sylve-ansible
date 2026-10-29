@@ -5,7 +5,7 @@ _Manage network attachments for a Sylve FreeBSD jail_
 Attach, update, or detach networks on a FreeBSD jail, or configure network inheritance.
 
 - **Collection:** `sylve.cloud` (FQCN `sylve.cloud.sylve_jail_network`)
-- **Added in:** `sylve.cloud 1.0.0`
+- **Added in:** `sylve.cloud 0.3.1`
 - **Author:** Sylve Contributors (@mhahl)
 - **Requirements:** `python >= 3.10`, `PyYAML`
 - **Check mode:** supported (`full`)

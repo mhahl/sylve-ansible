@@ -5,7 +5,7 @@ _Gather information about Sylve Bhyve VMs, templates, snapshots, stats, and logs
 Query Bhyve virtual machines, simple summaries, libvirt domain XML, QEMU guest-agent data, console logs, snapshots, templates, and RRD stats.
 
 - **Collection:** `sylve.cloud` (FQCN `sylve.cloud.sylve_vm_info`)
-- **Added in:** `sylve.cloud 1.0.0`
+- **Added in:** `sylve.cloud 0.3.1`
 - **Author:** Sylve Contributors (@mhahl)
 - **Requirements:** `python >= 3.10`, `PyYAML`
 - **Check mode:** supported (`full`)

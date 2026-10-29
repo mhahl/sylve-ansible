@@ -5,7 +5,7 @@ _Manage storage volumes attached to a Sylve Bhyve VM_
 Attach, create from image, update, or detach storage volumes on a Bhyve VM.
 
 - **Collection:** `sylve.cloud` (FQCN `sylve.cloud.sylve_vm_storage`)
-- **Added in:** `sylve.cloud 1.0.0`
+- **Added in:** `sylve.cloud 0.3.1`
 - **Author:** Sylve Contributors (@mhahl)
 - **Requirements:** `python >= 3.10`, `PyYAML`
 - **Check mode:** supported (`full`)

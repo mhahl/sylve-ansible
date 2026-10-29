@@ -5,7 +5,7 @@ _Manage Sylve static network routes_
 Create, update, or delete static network routes on a Sylve node.
 
 - **Collection:** `sylve.cloud` (FQCN `sylve.cloud.sylve_route`)
-- **Added in:** `sylve.cloud 1.0.0`
+- **Added in:** `sylve.cloud 0.3.1`
 - **Author:** Sylve Contributors (@mhahl)
 - **Requirements:** `python >= 3.10`, `PyYAML`
 - **Check mode:** supported (`full`)

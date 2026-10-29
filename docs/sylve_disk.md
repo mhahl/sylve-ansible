@@ -5,7 +5,7 @@ _Manage Sylve host disks, GPT partition tables, partitions, and SMART self-tests
 Query disks, initialize or clear GPT partition tables, create/delete partitions, run/abort SMART self-tests, and manage SMART schedules.
 
 - **Collection:** `sylve.cloud` (FQCN `sylve.cloud.sylve_disk`)
-- **Added in:** `sylve.cloud 1.0.0`
+- **Added in:** `sylve.cloud 0.3.1`
 - **Author:** Sylve Contributors (@mhahl)
 - **Requirements:** `python >= 3.10`, `PyYAML`
 - **Check mode:** supported (`full`)

@@ -5,7 +5,7 @@ _Manage Sylve system initialization, pools, services, tunables, PCI passthrough,
 Initialize Sylve, configure usable ZFS pools, control system services, set sysctl tunables, manage PCI passthrough (PPT) devices, run health checks, or manage remote files via file-explorer endpoints.
 
 - **Collection:** `sylve.cloud` (FQCN `sylve.cloud.sylve_system`)
-- **Added in:** `sylve.cloud 1.0.0`
+- **Added in:** `sylve.cloud 0.3.1`
 - **Author:** Sylve Contributors (@mhahl)
 - **Requirements:** `python >= 3.10`, `PyYAML`
 - **Check mode:** supported (`full`)

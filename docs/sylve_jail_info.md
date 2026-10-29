@@ -5,7 +5,7 @@ _Gather information about Sylve FreeBSD jails, bootstraps, templates, and stats_
 Query FreeBSD jails, simple summaries, live guest-info, root mountpoints, ZFS sources, logs, stats, snapshots, bootstraps, and templates.
 
 - **Collection:** `sylve.cloud` (FQCN `sylve.cloud.sylve_jail_info`)
-- **Added in:** `sylve.cloud 1.0.0`
+- **Added in:** `sylve.cloud 0.3.1`
 - **Author:** Sylve Contributors (@mhahl)
 - **Requirements:** `python >= 3.10`, `PyYAML`
 - **Check mode:** supported (`full`)

@@ -5,7 +5,7 @@ _Manage pkgbase FreeBSD jail bootstraps on Sylve_
 List, create, or delete pkgbase FreeBSD jail bootstraps on a ZFS pool.
 
 - **Collection:** `sylve.cloud` (FQCN `sylve.cloud.sylve_jail_bootstrap`)
-- **Added in:** `sylve.cloud 1.0.0`
+- **Added in:** `sylve.cloud 0.3.1`
 - **Author:** Sylve Contributors (@mhahl)
 - **Requirements:** `python >= 3.10`, `PyYAML`
 - **Check mode:** supported (`full`)

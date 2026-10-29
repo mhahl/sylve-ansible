@@ -5,7 +5,7 @@ _Manage network interfaces attached to a Sylve Bhyve VM_
 Attach, update, or detach network interfaces on a Bhyve VM.
 
 - **Collection:** `sylve.cloud` (FQCN `sylve.cloud.sylve_vm_network`)
-- **Added in:** `sylve.cloud 1.0.0`
+- **Added in:** `sylve.cloud 0.3.1`
 - **Author:** Sylve Contributors (@mhahl)
 - **Requirements:** `python >= 3.10`, `PyYAML`
 - **Check mode:** supported (`full`)
