@@ -31,6 +31,8 @@ def _require_yaml() -> None:
     """Fail with a clear message when PyYAML is missing at runtime."""
     if not HAS_YAML:
         raise SylveError("PyYAML is required by the sylve.cloud collection (pip install PyYAML).")
+
+
 from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible.module_utils.urls import open_url
 
