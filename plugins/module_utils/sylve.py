@@ -18,7 +18,19 @@ from datetime import datetime, timezone
 from pathlib import Path
 from typing import Any
 
-import yaml
+try:
+    import yaml
+
+    HAS_YAML = True
+except ImportError:  # pragma: no cover - exercised by the import sanity test
+    yaml = None  # type: ignore[no-redef]
+    HAS_YAML = False
+
+
+def _require_yaml() -> None:
+    """Fail with a clear message when PyYAML is missing at runtime."""
+    if not HAS_YAML:
+        raise SylveError("PyYAML is required by the sylve.cloud collection (pip install PyYAML).")
 from ansible.module_utils.basic import AnsibleModule, env_fallback
 from ansible.module_utils.urls import open_url
 
@@ -305,6 +317,7 @@ def load_config(path: Path | str | None = None) -> SylveConfig:
     cfg_path = Path(path).expanduser() if path else get_default_config_path()
     if not cfg_path.exists():
         return SylveConfig()
+    _require_yaml()
     try:
         raw = yaml.safe_load(cfg_path.read_text(encoding="utf-8")) or {}
     except Exception as exc:
@@ -339,6 +352,7 @@ def load_config(path: Path | str | None = None) -> SylveConfig:
 
 def save_config(config: SylveConfig, path: Path | str | None = None) -> Path:
     """Atomically persist configuration with mode 0600."""
+    _require_yaml()
     cfg_path = Path(path).expanduser() if path else get_default_config_path()
     cfg_path.parent.mkdir(parents=True, exist_ok=True)
     try:

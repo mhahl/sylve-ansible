@@ -21,7 +21,8 @@ from ansible_collections.sylve.cloud.plugins.modules import (
     sylve_zfs_pool,
 )
 
-SWAGGER_PATH = Path("/home/mhahl/Developer/sylve-cli/docs/swagger.json")
+ROOT = Path(__file__).resolve().parents[2]
+SWAGGER_PATH = ROOT / "tests" / "fixtures" / "swagger.json"
 
 
 class AnsibleExitJson(Exception):
