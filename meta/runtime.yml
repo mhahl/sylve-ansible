@@ -1,0 +1,145 @@
+---
+requires_ansible: ">=2.14.0"
+action_groups:
+  sylve:
+    - sylve_vm
+    - sylve_vm_storage
+    - sylve_vm_network
+    - sylve_vm_snapshot
+    - sylve_vm_template
+    - sylve_vm_info
+    - sylve_jail
+    - sylve_jail_network
+    - sylve_jail_snapshot
+    - sylve_jail_bootstrap
+    - sylve_jail_template
+    - sylve_jail_info
+    - sylve_switch
+    - sylve_network_interface
+    - sylve_route
+    - sylve_network_object
+    - sylve_dhcp
+    - sylve_firewall
+    - sylve_wireguard
+    - sylve_network_info
+    - sylve_zfs_pool
+    - sylve_zfs_dataset
+    - sylve_zfs_snapshot
+    - sylve_zfs_info
+    - sylve_disk
+    - sylve_samba
+    - sylve_iscsi
+    - sylve_cluster
+    - sylve_node
+    - sylve_cluster_info
+    - sylve_replication
+    - sylve_backup_target
+    - sylve_backup_job
+    - sylve_task
+    - sylve_download
+    - sylve_cloud_init_template
+    - sylve_system
+    - sylve_certificate
+    - sylve_ddns
+    - sylve_mdns
+    - sylve_notification
+    - sylve_user
+    - sylve_group
+    - sylve_directory_service
+    - sylve_api
+plugin_routing:
+  modules:
+    vm:
+      redirect: sylve.cloud.sylve_vm
+    server:
+      redirect: sylve.cloud.sylve_vm
+    vm_storage:
+      redirect: sylve.cloud.sylve_vm_storage
+    vm_network:
+      redirect: sylve.cloud.sylve_vm_network
+    vm_snapshot:
+      redirect: sylve.cloud.sylve_vm_snapshot
+    vm_template:
+      redirect: sylve.cloud.sylve_vm_template
+    vm_info:
+      redirect: sylve.cloud.sylve_vm_info
+    jail:
+      redirect: sylve.cloud.sylve_jail
+    jail_network:
+      redirect: sylve.cloud.sylve_jail_network
+    jail_snapshot:
+      redirect: sylve.cloud.sylve_jail_snapshot
+    jail_bootstrap:
+      redirect: sylve.cloud.sylve_jail_bootstrap
+    jail_template:
+      redirect: sylve.cloud.sylve_jail_template
+    jail_info:
+      redirect: sylve.cloud.sylve_jail_info
+    switch:
+      redirect: sylve.cloud.sylve_switch
+    network_interface:
+      redirect: sylve.cloud.sylve_network_interface
+    route:
+      redirect: sylve.cloud.sylve_route
+    network_object:
+      redirect: sylve.cloud.sylve_network_object
+    dhcp:
+      redirect: sylve.cloud.sylve_dhcp
+    firewall:
+      redirect: sylve.cloud.sylve_firewall
+    wireguard:
+      redirect: sylve.cloud.sylve_wireguard
+    network_info:
+      redirect: sylve.cloud.sylve_network_info
+    zfs_pool:
+      redirect: sylve.cloud.sylve_zfs_pool
+    zfs_dataset:
+      redirect: sylve.cloud.sylve_zfs_dataset
+    zfs_snapshot:
+      redirect: sylve.cloud.sylve_zfs_snapshot
+    zfs_info:
+      redirect: sylve.cloud.sylve_zfs_info
+    disk:
+      redirect: sylve.cloud.sylve_disk
+    samba:
+      redirect: sylve.cloud.sylve_samba
+    iscsi:
+      redirect: sylve.cloud.sylve_iscsi
+    cluster:
+      redirect: sylve.cloud.sylve_cluster
+    node:
+      redirect: sylve.cloud.sylve_node
+    cluster_info:
+      redirect: sylve.cloud.sylve_cluster_info
+    node_info:
+      redirect: sylve.cloud.sylve_cluster_info
+    replication:
+      redirect: sylve.cloud.sylve_replication
+    backup_target:
+      redirect: sylve.cloud.sylve_backup_target
+    backup_job:
+      redirect: sylve.cloud.sylve_backup_job
+    task:
+      redirect: sylve.cloud.sylve_task
+    download:
+      redirect: sylve.cloud.sylve_download
+    cloud_init_template:
+      redirect: sylve.cloud.sylve_cloud_init_template
+    system:
+      redirect: sylve.cloud.sylve_system
+    certificate:
+      redirect: sylve.cloud.sylve_certificate
+    ddns:
+      redirect: sylve.cloud.sylve_ddns
+    mdns:
+      redirect: sylve.cloud.sylve_mdns
+    notification:
+      redirect: sylve.cloud.sylve_notification
+    user:
+      redirect: sylve.cloud.sylve_user
+    group:
+      redirect: sylve.cloud.sylve_group
+    directory_service:
+      redirect: sylve.cloud.sylve_directory_service
+    api:
+      redirect: sylve.cloud.sylve_api

@@ -1,0 +1,27 @@
+namespace: sylve
+name: cloud
+version: 0.3.1
+readme: README.md
+authors:
+  - Sylve Contributors
+description: Ansible collection for managing Sylve FreeBSD hypervisor clusters, Bhyve VMs, Jails, ZFS, and networking.
+license:
+  - BSD-2-Clause
+tags:
+  - freebsd
+  - sylve
+  - bhyve
+  - jail
+  - zfs
+  - cloud
+  - virtualization
+repository: https://github.com/mhahl/sylve-ansible
+documentation: https://github.com/mhahl/sylve-ansible
+homepage: https://github.com/AlchemillaHQ/Sylve
+issues: https://github.com/mhahl/sylve-ansible/issues
+build_ignore:
+  - .pytest_cache
+  - .mypy_cache
+  - .ruff_cache
+  - __pycache__
+  - "*.tar.gz"
